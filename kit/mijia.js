@@ -217,7 +217,7 @@ class Mijia {
    * @param {*port} port
    */
   sendMsg(msg, ip, port) {
-    this.log.debug("send msg->%s", util.inspect(msg));
+    this.log.debug("send msg->%s for %s:%s", util.inspect(msg), ip, port);
     if (typeof msg === "string") {
       this.udpScoket.send(msg, 0, msg.length, port, ip);
     } else {
@@ -277,6 +277,7 @@ class Mijia {
         break;
       }
       case "get_id_list_ack": {
+        this.log.debug(`[${cmd}]: ${msg}`);
         const { sid, token } = json;
         const data = JSON.parse(json.data);
         const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: "gateway", token };
@@ -304,18 +305,17 @@ class Mijia {
         const { sid, model, short_id, token } = json;
         const data = JSON.parse(json.data);
         if (model == "gateway") {
-          const gateway = this.gateways[sid] ? this.gateways[sid] : { sid };
+          const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: "gateway" };
+          gateway.token = token;
+          gateway.ip = data.ip;
+          gateway.last_time = new Date();
           this.gateways[sid] = gateway;
-          this.gateways[sid].model = "gateway";
-          this.gateways[sid].short_id = short_id;
-          this.gateways[sid].token = token;
-          this.gateways[sid].last_time = new Date();
         } else {
           this.log.debug(`[${cmd}]: ${msg}`);
-          let device = this.devices[sid] ? this.devices[sid] : { sid, short_id, type: "zigbee" };
-          device = Object.assign(device, data);
-          device.last_time = new Date();
-          this.devices[sid] = device;
+          // let device = this.devices[sid] ? this.devices[sid] : { sid, short_id, type: "zigbee" };
+          // device = Object.assign(device, data);
+          // device.last_time = new Date();
+          // this.devices[sid] = device;
         }
         break;
       }
@@ -344,7 +344,7 @@ class Mijia {
     const { sid, model, short_id, token } = json;
     const data = JSON.parse(json.data);
     if (model == "gateway") {
-      const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model };
+      const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: "gateway", short_id, token };
       if (short_id) {
         gateway.short_id = short_id;
       }
@@ -352,6 +352,7 @@ class Mijia {
         gateway.token = token;
       }
       gateway.last_time = new Date();
+      this.gateways[sid] = gateway;
     } else {
       let device = this.devices[sid] ? this.devices[sid] : { sid, short_id, model };
       device = Object.assign(device, data);
