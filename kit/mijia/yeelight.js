@@ -111,27 +111,23 @@ class Yeelight extends Base {
     if (!setters || setters.length == 0) {
       service.getCharacteristic(Characteristic.On).on("set", (value, callback) => {
         this.mijia.log.debug(`Yeelight ${device.did} power:${value}`);
-        device.setPower(!!value);
-        callback();
+        device.setPower(!!value, callback);
       });
 
       service.getCharacteristic(Characteristic.Brightness).on("set", (value, callback) => {
         this.mijia.log.debug(`Yeelight ${device.did} brightness:${value}`);
-        device.setBright(value);
-        callback();
+        device.setBright(value, callback);
       });
 
       if (supportColor) {
         service.getCharacteristic(Characteristic.Saturation).on("set", (value, callback) => {
           this.mijia.log.debug(`Yeelight ${device.did} saturation:${value}`);
-          device.setColor(device.hue, value);
-          callback();
+          device.setColor(device.hue, value, callback);
         });
 
         service.getCharacteristic(Characteristic.Hue).on("set", (value, callback) => {
           this.mijia.log.debug(`Yeelight ${device.did} hue:${value}`);
-          device.setColor(value, device.sat);
-          callback();
+          device.setColor(value, device.sat, callback);
         });
       }
     }

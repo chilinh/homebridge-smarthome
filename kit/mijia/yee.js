@@ -33,6 +33,7 @@ class YeeDevice {
     this.hue = parseInt(hue, 10);
     this.sat = parseInt(sat, 10);
     this.name = name;
+    this.hb_lost = 0;
   }
 
   connect(cb) {
@@ -97,21 +98,20 @@ class YeeDevice {
       this.sock.setNoDelay(true);
       this.retry_cnt = 0;
       clearTimeout(this.retry_tmr);
-      this.hb_tmr = setInterval(() => {
-        this.hb_lost++;
-        if (this.hb_lost > 2) {
-          this.mijia.log.warn("HEARTBEAT lost, close socket and reconnect");
-          this.handleSockError(val => cb(val));
-          return;
-        }
-
-        // this.mijia.log.debug(`Ping: ${this.did}`);
-        this.sendCmd({
-          id: -1,
-          method: "get_prop",
-          params: ["power", "bright", "rgb"]
-        });
-      }, 5000);
+      // this.hb_tmr = setInterval(() => {
+      //   this.hb_lost++;
+      //   if (this.hb_lost > 2) {
+      //     this.mijia.log.warn("HEARTBEAT lost, close socket and reconnect");
+      //     this.handleSockError(val => cb(val));
+      //     return;
+      //   }
+      //   // this.mijia.log.debug(`Ping: ${this.did}`);
+      //   this.sendCmd({
+      //     id: -1,
+      //     method: "get_prop",
+      //     params: ["power", "bright", "rgb"]
+      //   });
+      // }, 10000);
       cb(0);
     });
   }
@@ -119,6 +119,7 @@ class YeeDevice {
   handleSockError(cb) {
     this.connected = false;
     this.sock = null;
+    clearInterval(this.hb_tmr);
     this.retry_tmr = setTimeout(() => {
       this.retry_cnt = this.retry_cnt + 1;
       if (this.retry_cnt > 5) {
@@ -127,66 +128,105 @@ class YeeDevice {
       }
       this.mijia.log.warn(`RETRY CONNECT @${this.did}: ${this.retry_cnt}`);
       this.connect(val => cb(val));
-    }, 3000);
-    clearTimeout(this.hb_tmr);
+    }, 10000);
   }
 
-  setPower(is_on) {
+  setPower(is_on, callback) {
     this.power = is_on;
-    this.sendCmd({
-      id: 1,
-      method: "set_power",
-      params: [is_on ? "on" : "off", "smooth", 500]
-    });
+    this.sendCmd(
+      {
+        id: 1,
+        method: "set_power",
+        params: [is_on ? "on" : "off", "smooth", 500]
+      },
+      callback
+    );
   }
 
-  setBright(val) {
+  setBright(val, callback) {
     this.bright = val;
-    this.sendCmd({
-      id: 1,
-      method: "set_bright",
-      params: [val, "smooth", 500]
-    });
+    const runCm = () => {
+      this.sendCmd(
+        {
+          id: 2,
+          method: "set_bright",
+          params: [val, "smooth", 500]
+        },
+        callback
+      );
+    };
+    if (!this.power) {
+      this.setPower(1, result => {
+        if (result) {
+          callback(result);
+        } else {
+          runCm();
+        }
+      });
+    } else {
+      runCm();
+    }
   }
 
-  setColor(hue, sat) {
+  setColor(hue, sat, callback) {
     this.hue = hue;
     this.sat = sat;
+    const runCm = () => {
+      this.sendCmd(
+        {
+          id: 3,
+          method: "set_hsv",
+          params: [hue, sat, "smooth", 500]
+        },
+        callback
+      );
+    };
     if (!this.power) {
-      this.setPower(1);
+      this.setPower(1, result => {
+        if (result) {
+          callback(result);
+        } else {
+          runCm();
+        }
+      });
+    } else {
+      runCm();
     }
-
-    this.sendCmd({
-      id: 1,
-      method: "set_hsv",
-      params: [hue, sat, "smooth", 500]
-    });
   }
 
-  setBlink() {
-    this.sendCmd({
-      id: 1,
-      method: "start_cf",
-      params: [6, 0, "500,2,4000,1,500,2,4000,50"]
-    });
-  }
+  // setBlink(callback) {
+  //   this.sendCmd({
+  //     id: 4,
+  //     method: "start_cf",
+  //     params: [6, 0, "500,2,4000,1,500,2,4000,50"]
+  //   });
+  // }
 
-  setName(name) {
+  setName(name, callback) {
     this.name = name;
-    this.sendCmd({
-      id: 1,
-      method: "set_name",
-      params: [new Buffer(name).toString("base64")]
-    });
+    this.sendCmd(
+      {
+        id: 5,
+        method: "set_name",
+        params: [new Buffer(name).toString("base64")]
+      },
+      callback
+    );
   }
 
-  sendCmd(cmd) {
+  sendCmd(cmd, callback) {
     if (this.sock == null || this.connected == false) {
       this.mijia.log.warn(`BROKEN ${this.did} - ${this.connected} - ${this.sock}`);
       return;
     }
     const msg = JSON.stringify(cmd);
-    this.sock.write(`${msg}\r\n`);
+    this.sock.write(`${msg}\r\n`, result => {
+      if (result) {
+        callback();
+      } else {
+        callback(new Error("Cannot send COMMAND"));
+      }
+    });
   }
 }
 
