@@ -60,6 +60,8 @@ class Switch extends Base {
         event.updateValue(Characteristic.ProgrammableSwitchEvent.SINGLE_PRESS); // 0
       } else if (status == "double_click") {
         event.updateValue(Characteristic.ProgrammableSwitchEvent.DOUBLE_PRESS); // 1
+      } else {
+        event.updateValue(Characteristic.ProgrammableSwitchEvent.LONG_PRESS);
       }
     }
     this.setBatteryService(sid, voltage, accessory);
