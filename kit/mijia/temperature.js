@@ -1,4 +1,5 @@
-const Base = require('./base');
+const Base = require("./base");
+
 let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen;
 class Temperature extends Base {
   constructor(mijia) {
@@ -10,37 +11,38 @@ class Temperature extends Base {
     UUIDGen = mijia.UUIDGen;
   }
   /**
- * parse the gateway json msg
- * @param {*json} json 
- * @param {*remoteinfo} rinfo 
- */
+   * parse the gateway json msg
+   * @param {*json} json
+   * @param {*remoteinfo} rinfo
+   */
   parseMsg(json, rinfo) {
-    let { cmd, model, sid } = json;
-    let data = JSON.parse(json.data);
-    let { voltage, temperature } = data;
+    const { cmd, model, sid } = json;
+    const data = JSON.parse(json.data);
+    const { voltage, temperature } = data;
     this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} temperature->${temperature}`);
-    this.setTemperatureSensor(sid, voltage, temperature)
+    this.setTemperatureSensor(sid, voltage, temperature);
   }
   /**
    * set up TemperatureSensor(mijia temperature and humidity sensor)
-   * @param {*device id} sid 
-   * @param {*device voltage} voltage 
-   * @param {*device temperature} temperature 
+   * @param {*device id} sid
+   * @param {*device voltage} voltage
+   * @param {*device temperature} temperature
    */
   setTemperatureSensor(sid, voltage, temperature) {
-    let uuid = UUIDGen.generate('Mijia-TemperatureSensor@' + sid);
+    const uuid = UUIDGen.generate(`Mijia-TemperatureSensor@${sid}`);
     let accessory = this.mijia.accessories[uuid];
     let service;
     if (!accessory) {
-      //init a new homekit accessory
-      let sub = sid.substring(sid.length - 4);
-      let name = `Temp ${this.mijia.sensor_names[sub] ? this.mijia.sensor_names[sub] : sub}`
+      // init a new homekit accessory
+      const sub = sid.substring(sid.length - 4);
+      const name = `Temp ${this.mijia.sensor_names[sub] ? this.mijia.sensor_names[sub] : sub}`;
       accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
-      accessory.getService(Service.AccessoryInformation)
+      accessory
+        .getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, "Mijia")
         .setCharacteristic(Characteristic.Model, "Mijia TemperatureSensor")
         .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on('identify', function (paired, callback) {
+      accessory.on("identify", (paired, callback) => {
         callback();
       });
       service = new Service.TemperatureSensor(name);
@@ -51,7 +53,7 @@ class Temperature extends Base {
     }
     accessory.reachable = true;
     accessory.context.sid = sid;
-    accessory.context.model = 'sensor_ht';
+    accessory.context.model = "sensor_ht";
     if (temperature != undefined) {
       service.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature / 100);
     }

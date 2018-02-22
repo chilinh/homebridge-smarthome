@@ -1,4 +1,5 @@
-const Base = require('./base');
+const Base = require("./base");
+
 let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen;
 class Switch extends Base {
   constructor(mijia) {
@@ -10,37 +11,38 @@ class Switch extends Base {
     UUIDGen = mijia.UUIDGen;
   }
   /**
- * parse the gateway json msg
- * @param {*json} json 
- * @param {*remoteinfo} rinfo 
- */
+   * parse the gateway json msg
+   * @param {*json} json
+   * @param {*remoteinfo} rinfo
+   */
   parseMsg(json, rinfo) {
-    let { cmd, model, sid } = json;
-    let data = JSON.parse(json.data);
-    let { voltage, status } = data;
+    const { cmd, model, sid } = json;
+    const data = JSON.parse(json.data);
+    const { voltage, status } = data;
     this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} status->${status}`);
-    this.setSwitch(sid, voltage, status)
+    this.setSwitch(sid, voltage, status);
   }
   /**
    * set up Switch(mijia Switch)
-   * @param {*device id} sid 
-   * @param {*device voltage} voltage 
-   * @param {*device status} status 
+   * @param {*device id} sid
+   * @param {*device voltage} voltage
+   * @param {*device status} status
    */
   setSwitch(sid, voltage, status) {
-    let uuid = UUIDGen.generate('Mijia-Switch@' + sid);
+    const uuid = UUIDGen.generate(`Mijia-Switch@${sid}`);
     let accessory = this.mijia.accessories[uuid];
     let service;
     if (!accessory) {
-      //init a new homekit accessory
-      let sub = sid.substring(sid.length - 4);
-      let name = `Switch ${this.mijia.sensor_names[sub] ? this.mijia.sensor_names[sub] : sub}`
+      // init a new homekit accessory
+      const sub = sid.substring(sid.length - 4);
+      const name = `Switch ${this.mijia.sensor_names[sub] ? this.mijia.sensor_names[sub] : sub}`;
       accessory = new PlatformAccessory(name, uuid, Accessory.Categories.PROGRAMMABLE_SWITCH);
-      accessory.getService(Service.AccessoryInformation)
+      accessory
+        .getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, "Mijia")
         .setCharacteristic(Characteristic.Model, "Mijia Switch")
         .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on('identify', function (paired, callback) {
+      accessory.on("identify", (paired, callback) => {
         callback();
       });
       service = new Service.StatelessProgrammableSwitch(name);
@@ -51,13 +53,13 @@ class Switch extends Base {
     }
     accessory.reachable = true;
     accessory.context.sid = sid;
-    accessory.context.model = 'switch';
+    accessory.context.model = "switch";
     if (status != undefined) {
-      var event = service.getCharacteristic(Characteristic.ProgrammableSwitchEvent);
-      if (status == 'click') {
-        event.updateValue(Characteristic.ProgrammableSwitchEvent.SINGLE_PRESS); //0
-      } else if (status == 'double_click') {
-        event.updateValue(Characteristic.ProgrammableSwitchEvent.DOUBLE_PRESS); //1
+      const event = service.getCharacteristic(Characteristic.ProgrammableSwitchEvent);
+      if (status == "click") {
+        event.updateValue(Characteristic.ProgrammableSwitchEvent.SINGLE_PRESS); // 0
+      } else if (status == "double_click") {
+        event.updateValue(Characteristic.ProgrammableSwitchEvent.DOUBLE_PRESS); // 1
       }
     }
     this.setBatteryService(sid, voltage, accessory);

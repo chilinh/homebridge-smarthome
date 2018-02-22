@@ -1,4 +1,5 @@
-const Base = require('./base');
+const Base = require("./base");
+
 let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen, CommunityTypes;
 class TemperatureV1 extends Base {
   constructor(mijia) {
@@ -11,14 +12,14 @@ class TemperatureV1 extends Base {
     CommunityTypes = mijia.CommunityTypes;
   }
   /**
- * parse the gateway json msg
- * @param {*json} json 
- * @param {*remoteinfo} rinfo 
- */
+   * parse the gateway json msg
+   * @param {*json} json
+   * @param {*remoteinfo} rinfo
+   */
   parseMsg(json, rinfo) {
-    let { cmd, model, sid } = json;
-    let data = JSON.parse(json.data);
-    let { voltage, temperature } = data;
+    const { cmd, model, sid } = json;
+    const data = JSON.parse(json.data);
+    const { voltage, temperature } = data;
     this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} temperature->${temperature}`);
     if (temperature != undefined) {
       this.setTemperatureSensor(sid, voltage, temperature);
@@ -26,23 +27,24 @@ class TemperatureV1 extends Base {
   }
   /**
    * set up TemperatureSensor(mijia temperature and humidity sensor)
-   * @param {*device id} sid 
-   * @param {*device voltage} voltage 
-   * @param {*device temperature} temperature 
+   * @param {*device id} sid
+   * @param {*device voltage} voltage
+   * @param {*device temperature} temperature
    */
   setTemperatureSensor(sid, voltage, temperature) {
-    let uuid = UUIDGen.generate('Aqara-TemperatureSensor@' + sid);
+    const uuid = UUIDGen.generate(`Aqara-TemperatureSensor@${sid}`);
     let accessory = this.mijia.accessories[uuid];
     let service;
     if (!accessory) {
-      //init a new homekit accessory
-      let name = sid.substring(sid.length - 4);
+      // init a new homekit accessory
+      const name = sid.substring(sid.length - 4);
       accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
-      accessory.getService(Service.AccessoryInformation)
+      accessory
+        .getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, "Aqara")
         .setCharacteristic(Characteristic.Model, "Aqara TemperatureSensor")
         .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on('identify', function (paired, callback) {
+      accessory.on("identify", (paired, callback) => {
         callback();
       });
       service = new Service.TemperatureSensor(name);
@@ -53,7 +55,7 @@ class TemperatureV1 extends Base {
     }
     accessory.reachable = true;
     accessory.context.sid = sid;
-    accessory.context.model = 'weather.v1';
+    accessory.context.model = "weather.v1";
     if (temperature != undefined) {
       service.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature / 100);
     }

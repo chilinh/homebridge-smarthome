@@ -1,10 +1,10 @@
 /**
- * 
- * 
+ *
+ *
  */
 /**
  * convert hex string to rgb array
- * @param {* hex} hex 
+ * @param {* hex} hex
  */
 function hex2rgb(hex) {
   let r = hex.substring(0, 2);
@@ -17,9 +17,9 @@ function hex2rgb(hex) {
 }
 /**
  * convert rgb array to hex string
- * @param {* red} r 
- * @param {* green} g 
- * @param {* blue} b 
+ * @param {* red} r
+ * @param {* green} g
+ * @param {* blue} b
  */
 function rgb2hex(r, g, b) {
   if (r == "") r = 0;
@@ -46,9 +46,9 @@ function rgb2hex(r, g, b) {
 }
 /**
  * convert rgb array to hsv array
- * @param {* red} r 
- * @param {* green} g 
- * @param {* blue} b 
+ * @param {* red} r
+ * @param {* green} g
+ * @param {* blue} b
  */
 function rgb2hsv(r, g, b) {
   if (r == "") r = 0;
@@ -95,9 +95,9 @@ function rgb2hsv(r, g, b) {
 }
 /**
  * convert hsv array to rgb array
- * @param {* hue} h 
- * @param {* saturation} s 
- * @param {* brightness} v 
+ * @param {* hue} h
+ * @param {* saturation} s
+ * @param {* brightness} v
  */
 function hsv2rgb(h, s, v) {
   if (h == "") h = 0;

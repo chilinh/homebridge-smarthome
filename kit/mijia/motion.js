@@ -1,4 +1,5 @@
-const Base = require('./base');
+const Base = require("./base");
+
 let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen;
 class Motion extends Base {
   constructor(mijia) {
@@ -10,37 +11,38 @@ class Motion extends Base {
     UUIDGen = mijia.UUIDGen;
   }
   /**
- * parse the gateway json msg
- * @param {*json} json 
- * @param {*remoteinfo} rinfo 
- */
+   * parse the gateway json msg
+   * @param {*json} json
+   * @param {*remoteinfo} rinfo
+   */
   parseMsg(json, rinfo) {
-    let { cmd, model, sid } = json;
-    let data = JSON.parse(json.data);
-    let { voltage, status } = data;
+    const { cmd, model, sid } = json;
+    const data = JSON.parse(json.data);
+    const { voltage, status } = data;
     this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} status->${status}`);
-    this.setMotionSensor(sid, voltage, status)
+    this.setMotionSensor(sid, voltage, status);
   }
   /**
    * set up MotionSensor(mijia motion sensor)
-   * @param {*device id} sid 
-   * @param {*device voltage} voltage 
-   * @param {*device status} status 
+   * @param {*device id} sid
+   * @param {*device voltage} voltage
+   * @param {*device status} status
    */
   setMotionSensor(sid, voltage, status) {
-    let uuid = UUIDGen.generate('Mijia-MotionSensor@' + sid);
+    const uuid = UUIDGen.generate(`Mijia-MotionSensor@${sid}`);
     let accessory = this.mijia.accessories[uuid];
     let service;
     if (!accessory) {
-      //init a new homekit accessory
-      let sub = sid.substring(sid.length - 4);
-      let name = `Motion ${this.mijia.sensor_names[sub] ? this.mijia.sensor_names[sub] : sub}`
+      // init a new homekit accessory
+      const sub = sid.substring(sid.length - 4);
+      const name = `Motion ${this.mijia.sensor_names[sub] ? this.mijia.sensor_names[sub] : sub}`;
       accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
-      accessory.getService(Service.AccessoryInformation)
+      accessory
+        .getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, "Mijia")
         .setCharacteristic(Characteristic.Model, "Mijia MotionSensor")
         .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on('identify', function (paired, callback) {
+      accessory.on("identify", (paired, callback) => {
         callback();
       });
       service = new Service.MotionSensor(name);
@@ -51,8 +53,8 @@ class Motion extends Base {
     }
     accessory.reachable = true;
     accessory.context.sid = sid;
-    accessory.context.model = 'motion';
-    service.getCharacteristic(Characteristic.MotionDetected).updateValue('motion' === status);
+    accessory.context.model = "motion";
+    service.getCharacteristic(Characteristic.MotionDetected).updateValue(status === "motion");
     this.setBatteryService(sid, voltage, accessory);
     if (!this.mijia.accessories[uuid]) {
       this.mijia.accessories[uuid] = accessory;

@@ -1,4 +1,5 @@
-const Base = require('./base');
+const Base = require("./base");
+
 let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen, CommunityTypes;
 class PressureV1 extends Base {
   constructor(mijia) {
@@ -11,14 +12,14 @@ class PressureV1 extends Base {
     CommunityTypes = mijia.CommunityTypes;
   }
   /**
- * parse the gateway json msg
- * @param {*json} json 
- * @param {*remoteinfo} rinfo 
- */
+   * parse the gateway json msg
+   * @param {*json} json
+   * @param {*remoteinfo} rinfo
+   */
   parseMsg(json, rinfo) {
-    let { cmd, model, sid } = json;
-    let data = JSON.parse(json.data);
-    let { voltage, pressure } = data;
+    const { cmd, model, sid } = json;
+    const data = JSON.parse(json.data);
+    const { voltage, pressure } = data;
     this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} pressure->${pressure}`);
     if (pressure != undefined) {
       this.setPressureSensor(sid, voltage, pressure);
@@ -26,23 +27,24 @@ class PressureV1 extends Base {
   }
   /**
    * set up PressureSensor(aqara pressure and humidity sensor)
-   * @param {*device id} sid 
-   * @param {*device voltage} voltage 
-   * @param {*device pressure} pressure 
+   * @param {*device id} sid
+   * @param {*device voltage} voltage
+   * @param {*device pressure} pressure
    */
   setPressureSensor(sid, voltage, pressure) {
-    let uuid = UUIDGen.generate('Aqara-PressureSensor@' + sid);
+    const uuid = UUIDGen.generate(`Aqara-PressureSensor@${sid}`);
     let accessory = this.mijia.accessories[uuid];
     let service;
     if (!accessory) {
-      //init a new homekit accessory
-      let name = sid.substring(sid.length - 4);
+      // init a new homekit accessory
+      const name = sid.substring(sid.length - 4);
       accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
-      accessory.getService(Service.AccessoryInformation)
+      accessory
+        .getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, "Aqara")
         .setCharacteristic(Characteristic.Model, "Aqara PressureSensor")
         .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on('identify', function (paired, callback) {
+      accessory.on("identify", (paired, callback) => {
         callback();
       });
       service = new CommunityTypes.AtmosphericPressureSensor(name);
@@ -53,7 +55,7 @@ class PressureV1 extends Base {
     }
     accessory.reachable = true;
     accessory.context.sid = sid;
-    accessory.context.model = 'weather.v1';
+    accessory.context.model = "weather.v1";
     if (pressure != undefined) {
       service.getCharacteristic(Characteristic.AtmosphericPressureLevel).updateValue(pressure);
     }

@@ -1,13 +1,11 @@
-var net = require("net");
-var dgram = require("dgram");
+const net = require("net");
+const dgram = require("dgram");
 const util = require("util");
 const color = require("../../util/color");
 
-var PORT = 1982;
-var MCAST_ADDR = "239.255.255.250";
-var discMsg = new Buffer(
-  'M-SEARCH * HTTP/1.1\r\nMAN: "ssdp:discover"\r\nST: wifi_bulb'
-);
+const PORT = 1982;
+const MCAST_ADDR = "239.255.255.250";
+const discMsg = new Buffer('M-SEARCH * HTTP/1.1\r\nMAN: "ssdp:discover"\r\nST: wifi_bulb');
 
 class YeeDevice {
   constructor(did, loc, model, power, bri, hue, sat, name, cb, mijia) {
@@ -25,9 +23,9 @@ class YeeDevice {
   }
 
   update(loc, power, bri, hue, sat, name) {
-    var tmp = loc.split(":");
-    var host = tmp[0];
-    var port = tmp[1];
+    const tmp = loc.split(":");
+    const host = tmp[0];
+    const port = tmp[1];
     this.host = host;
     this.port = parseInt(port, 10);
     this.power = power == "on" ? 1 : 0;
@@ -39,18 +37,18 @@ class YeeDevice {
 
   connect(cb) {
     if (this.connected) {
-      return
+      return;
     }
     this.connected = true;
     this.hb_lost = 0;
     this.sock = new net.Socket();
 
-    this.sock.on("data", (data) => {
-      var msg = data.toString();
-      var rsps = msg.split("\r\n");
+    this.sock.on("data", data => {
+      const msg = data.toString();
+      const rsps = msg.split("\r\n");
       rsps.forEach((json, idex, array) => {
         if (!json || json.length == 0) {
-          return
+          return;
         }
         try {
           JSON.parse(json, (k, v) => {
@@ -70,10 +68,10 @@ class YeeDevice {
               this.sat = parseInt(v, 10);
               this.propChangeCb(this, "sat", this.sat);
             } else if (k == "rgb") {
-              let rgb = parseInt(v, 10);
-              let r = ((rgb & 0xff0000) >> 16) / 255.0;
-              let g = ((rgb & 0xff00) >> 8) / 255.0;
-              let b = (rgb & 0xff) / 255.0;
+              const rgb = parseInt(v, 10);
+              const r = ((rgb & 0xff0000) >> 16) / 255.0;
+              const g = ((rgb & 0xff00) >> 8) / 255.0;
+              const b = (rgb & 0xff) / 255.0;
               [this.hue, this.sat] = color.rgb2hsv(r, g, b);
               this.propChangeCb(this, "hue", this.hue);
               this.propChangeCb(this, "sat", this.sat);
@@ -86,13 +84,13 @@ class YeeDevice {
     });
 
     this.sock.on("end", () => {
-      this.mijia.log.error(`END`);
-      this.handleSockError((val) => cb(val))
+      this.mijia.log.error("END");
+      this.handleSockError(val => cb(val));
     });
 
-    this.sock.on("error", (e) => {
+    this.sock.on("error", e => {
       this.mijia.log.error(`YEELIGHT ${e}`);
-      this.handleSockError((val) => cb(val))
+      this.handleSockError(val => cb(val));
     });
 
     this.sock.connect(this.port, this.host, () => {
@@ -102,8 +100,8 @@ class YeeDevice {
       this.hb_tmr = setInterval(() => {
         this.hb_lost++;
         if (this.hb_lost > 2) {
-          this.mijia.log.warn(`HEARTBEAT lost, close socket and reconnect`);
-          this.handleSockError((val) => cb(val));
+          this.mijia.log.warn("HEARTBEAT lost, close socket and reconnect");
+          this.handleSockError(val => cb(val));
           return;
         }
 
@@ -114,7 +112,7 @@ class YeeDevice {
           params: ["power", "bright", "rgb"]
         });
       }, 5000);
-      cb(0)
+      cb(0);
     });
   }
 
@@ -124,11 +122,11 @@ class YeeDevice {
     this.retry_tmr = setTimeout(() => {
       this.retry_cnt = this.retry_cnt + 1;
       if (this.retry_cnt > 5) {
-        cb(-1)
+        cb(-1);
         return;
       }
       this.mijia.log.warn(`RETRY CONNECT @${this.did}: ${this.retry_cnt}`);
-      this.connect((val) => cb(val));
+      this.connect(val => cb(val));
     }, 3000);
     clearTimeout(this.hb_tmr);
   }
@@ -184,13 +182,11 @@ class YeeDevice {
 
   sendCmd(cmd) {
     if (this.sock == null || this.connected == false) {
-      this.mijia.log.warn(
-        `BROKEN ${this.did} - ${this.connected} - ${this.sock}`
-      );
+      this.mijia.log.warn(`BROKEN ${this.did} - ${this.connected} - ${this.sock}`);
       return;
     }
-    var msg = JSON.stringify(cmd);
-    this.sock.write(msg + "\r\n");
+    const msg = JSON.stringify(cmd);
+    this.sock.write(`${msg}\r\n`);
   }
 }
 
@@ -201,9 +197,9 @@ class YeeAgent {
     this.devices = {};
     this.handler = handler;
 
-    this.discSock = dgram.createSocket('udp4');
+    this.discSock = dgram.createSocket("udp4");
     this.discSock.on("message", (msg, info) => {
-      this.handleDiscoverMsg(msg, info)
+      this.handleDiscoverMsg(msg, info);
     });
     this.discSock.on("listening", () => {
       this.discSock.setBroadcast(true);
@@ -215,22 +211,22 @@ class YeeAgent {
 
     this.scanSock = dgram.createSocket("udp4");
     this.scanSock.on("message", (msg, info) => {
-      this.handleDiscoverMsg(msg, info)
+      this.handleDiscoverMsg(msg, info);
     });
   }
 
   handleDiscoverMsg(message, from) {
-    var did = "";
-    var loc = "";
-    var power = "";
-    var bright = "";
-    var model = "";
-    var hue = "";
-    var sat = "";
-    var name = "";
+    let did = "";
+    let loc = "";
+    let power = "";
+    let bright = "";
+    let model = "";
+    let hue = "";
+    let sat = "";
+    let name = "";
 
-    let headers = message.toString().split("\r\n");
-    for (var i = 0; i < headers.length; i++) {
+    const headers = message.toString().split("\r\n");
+    for (let i = 0; i < headers.length; i++) {
       if (headers[i].indexOf("id:") >= 0) did = headers[i].slice(4);
       if (headers[i].indexOf("Location:") >= 0) loc = headers[i].slice(10);
       if (headers[i].indexOf("power:") >= 0) power = headers[i].slice(7);
@@ -239,36 +235,45 @@ class YeeAgent {
       if (headers[i].indexOf("hue:") >= 0) hue = headers[i].slice(5);
       if (headers[i].indexOf("sat:") >= 0) sat = headers[i].slice(5);
       if (headers[i].indexOf("name:") >= 0) {
-        let tmp = headers[i].slice(6)
+        const tmp = headers[i].slice(6);
         name = new Buffer(headers[i].slice(6), "base64").toString("utf8");
       }
     }
     if (did == "" || loc == "" || model == "" || power == "" || bright == "") {
-      this.mijia.log.warn(`NO did or loc FOUND!`);
+      this.mijia.log.warn("NO did or loc FOUND!");
       return;
     }
     loc = loc.split("//")[1];
     if (loc == "") {
-      this.mijia.log.warn(`LOCATION format ERROR!`);
+      this.mijia.log.warn("LOCATION format ERROR!");
       return;
     }
 
-    let device = this.devices[did]
+    let device = this.devices[did];
     if (device) {
       device.update(loc, power, bright, hue, sat, name);
     } else {
       device = new YeeDevice(
-        did, loc, model, power, bright, hue, sat, name,
-        (dev, prop, val) => { this.handler.onDevPropChange(dev, prop, val) },
+        did,
+        loc,
+        model,
+        power,
+        bright,
+        hue,
+        sat,
+        name,
+        (dev, prop, val) => {
+          this.handler.onDevPropChange(dev, prop, val);
+        },
         this.mijia
       );
-      this.devices[did] = device
+      this.devices[did] = device;
       this.mijia.log.debug(`YEELIGHT found ${name}:${did} @${loc}`);
       this.handler.onDevFound(device);
     }
 
     if (!device.connected && device.sock == null) {
-      device.connect((ret) => {
+      device.connect(ret => {
         if (ret < 0) {
           this.mijia.log.error(`FAILED to connect ${name}:${did} @${loc}`);
           this.handler.onDevDisconnected(device);

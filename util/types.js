@@ -1,4 +1,4 @@
-var inherits = require('util').inherits;
+var inherits = require("util").inherits;
 var Service, Characteristic;
 
 module.exports = function(homebridge) {
@@ -7,111 +7,110 @@ module.exports = function(homebridge) {
 
   var CommunityTypes = {};
 
-
   // Characteristics
 
   CommunityTypes.Timestamp = function() {
     Characteristic.call(this, "Timestamp", CommunityTypes.Timestamp.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.Timestamp.UUID = 'FF000001-0000-1000-8000-135D67EC4377';
+  CommunityTypes.Timestamp.UUID = "FF000001-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.Timestamp, Characteristic);
 
   CommunityTypes.AudioDataURL = function() {
     Characteristic.call(this, "Audio URL", CommunityTypes.AudioDataURL.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
   };
-  CommunityTypes.AudioDataURL.UUID = 'FF000002-0000-1000-8000-135D67EC4377';
+  CommunityTypes.AudioDataURL.UUID = "FF000002-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.AudioDataURL, Characteristic);
 
   CommunityTypes.VideoDataURL = function() {
     Characteristic.call(this, "Video URL", CommunityTypes.VideoDataURL.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
   };
-  CommunityTypes.VideoDataURL.UUID = 'FF000003-0000-1000-8000-135D67EC4377';
+  CommunityTypes.VideoDataURL.UUID = "FF000003-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.VideoDataURL, Characteristic);
 
   CommunityTypes.AudioVolume = function() {
-    Characteristic.call(this, 'Audio Volume', CommunityTypes.AudioVolume.UUID);
+    Characteristic.call(this, "Audio Volume", CommunityTypes.AudioVolume.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
+      format: Characteristic.Formats.UINT8,
       unit: Characteristic.Units.PERCENTAGE,
       maxValue: 100,
       minValue: 0,
       minStep: 1,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.AudioVolume.UUID = '00001001-0000-1000-8000-135D67EC4377';
+  CommunityTypes.AudioVolume.UUID = "00001001-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.AudioVolume, Characteristic);
 
   CommunityTypes.Muting = function() {
-    Characteristic.call(this, 'Muting', CommunityTypes.Muting.UUID);
+    Characteristic.call(this, "Muting", CommunityTypes.Muting.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.Muting.UUID = '00001002-0000-1000-8000-135D67EC4377';
+  CommunityTypes.Muting.UUID = "00001002-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.Muting, Characteristic);
 
   CommunityTypes.PlaybackState = function() {
-    Characteristic.call(this, 'Playback State', CommunityTypes.PlaybackState.UUID);
+    Characteristic.call(this, "Playback State", CommunityTypes.PlaybackState.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.PlaybackState.UUID = '00002001-0000-1000-8000-135D67EC4377';
+  CommunityTypes.PlaybackState.UUID = "00002001-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.PlaybackState, Characteristic);
   CommunityTypes.PlaybackState.PLAYING = 0;
   CommunityTypes.PlaybackState.PAUSED = 1;
   CommunityTypes.PlaybackState.STOPPED = 2;
 
   CommunityTypes.SkipForward = function() {
-    Characteristic.call(this, 'Skip Forward', CommunityTypes.SkipForward.UUID);
+    Characteristic.call(this, "Skip Forward", CommunityTypes.SkipForward.UUID);
     this.setProps({
-      format:   Characteristic.Formats.BOOL,
-      perms: [ Characteristic.Perms.WRITE ]
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.WRITE]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.SkipForward.UUID = '00002002-0000-1000-8000-135D67EC4377';
+  CommunityTypes.SkipForward.UUID = "00002002-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.SkipForward, Characteristic);
 
   CommunityTypes.SkipBackward = function() {
-    Characteristic.call(this, 'Skip Backward', CommunityTypes.SkipBackward.UUID);
+    Characteristic.call(this, "Skip Backward", CommunityTypes.SkipBackward.UUID);
     this.setProps({
-      format:   Characteristic.Formats.BOOL,
-      perms: [ Characteristic.Perms.WRITE ]
+      format: Characteristic.Formats.BOOL,
+      perms: [Characteristic.Perms.WRITE]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.SkipBackward.UUID = '00002003-0000-1000-8000-135D67EC4377';
+  CommunityTypes.SkipBackward.UUID = "00002003-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.SkipBackward, Characteristic);
 
   CommunityTypes.ShuffleMode = function() {
-    Characteristic.call(this, 'Shuffle Mode', CommunityTypes.ShuffleMode.UUID);
+    Characteristic.call(this, "Shuffle Mode", CommunityTypes.ShuffleMode.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.ShuffleMode.UUID = '00002004-0000-1000-8000-135D67EC4377';
+  CommunityTypes.ShuffleMode.UUID = "00002004-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.ShuffleMode, Characteristic);
   //NOTE: If GROUP or SET is not supported, accessories should coerce to ALBUM.
   // If ALBUM is not supported, coerce to ITEM.
@@ -125,485 +124,493 @@ module.exports = function(homebridge) {
   CommunityTypes.ShuffleMode.SET = 4; // e.g. T.V. Series or album box set
 
   CommunityTypes.RepeatMode = function() {
-    Characteristic.call(this, 'Repeat Mode', CommunityTypes.RepeatMode.UUID);
+    Characteristic.call(this, "Repeat Mode", CommunityTypes.RepeatMode.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.RepeatMode.UUID = '00002005-0000-1000-8000-135D67EC4377';
+  CommunityTypes.RepeatMode.UUID = "00002005-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.RepeatMode, Characteristic);
   CommunityTypes.RepeatMode.OFF = 0;
   CommunityTypes.RepeatMode.ONE = 1;
   CommunityTypes.RepeatMode.ALL = 2;
 
   CommunityTypes.PlaybackSpeed = function() {
-    Characteristic.call(this, 'Playback Speed', CommunityTypes.PlaybackSpeed.UUID);
+    Characteristic.call(this, "Playback Speed", CommunityTypes.PlaybackSpeed.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.FLOAT,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.PlaybackSpeed.UUID = '00002006-0000-1000-8000-135D67EC4377';
+  CommunityTypes.PlaybackSpeed.UUID = "00002006-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.PlaybackSpeed, Characteristic);
 
   CommunityTypes.MediaCurrentPosition = function() {
-    Characteristic.call(this, 'Media Current Position', CommunityTypes.MediaCurrentPosition.UUID);
+    Characteristic.call(this, "Media Current Position", CommunityTypes.MediaCurrentPosition.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT, // In seconds
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.FLOAT, // In seconds
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.MediaCurrentPosition.UUID = '00002007-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaCurrentPosition.UUID = "00002007-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaCurrentPosition, Characteristic);
 
   CommunityTypes.MediaItemName = function() {
-    Characteristic.call(this, 'Media Name', CommunityTypes.MediaItemName.UUID);
+    Characteristic.call(this, "Media Name", CommunityTypes.MediaItemName.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.MediaItemName.UUID = '00003001-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaItemName.UUID = "00003001-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaItemName, Characteristic);
 
   CommunityTypes.MediaItemAlbumName = function() {
-    Characteristic.call(this, 'Media Album Name', CommunityTypes.MediaItemAlbumName.UUID);
+    Characteristic.call(this, "Media Album Name", CommunityTypes.MediaItemAlbumName.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.MediaItemAlbumName.UUID = '00003002-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaItemAlbumName.UUID = "00003002-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaItemAlbumName, Characteristic);
 
   CommunityTypes.MediaItemArtist = function() {
-    Characteristic.call(this, 'Media Artist', CommunityTypes.MediaItemArtist.UUID);
+    Characteristic.call(this, "Media Artist", CommunityTypes.MediaItemArtist.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.MediaItemArtist.UUID = '00003003-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaItemArtist.UUID = "00003003-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaItemArtist, Characteristic);
 
   CommunityTypes.MediaItemDuration = function() {
-    Characteristic.call(this, 'Media Duration', CommunityTypes.MediaItemDuration.UUID);
+    Characteristic.call(this, "Media Duration", CommunityTypes.MediaItemDuration.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT, // In seconds
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.FLOAT, // In seconds
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.MediaItemDuration.UUID = '00003005-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaItemDuration.UUID = "00003005-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaItemDuration, Characteristic);
 
   CommunityTypes.StillImage = function() {
-    Characteristic.call(this, 'Still Image', CommunityTypes.StillImage.UUID);
+    Characteristic.call(this, "Still Image", CommunityTypes.StillImage.UUID);
     this.setProps({
-      format:   Characteristic.Formats.DATA,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.DATA,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.StillImage.UUID = '00004001-0000-1000-8000-135D67EC4377';
+  CommunityTypes.StillImage.UUID = "00004001-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.StillImage, Characteristic);
 
   // Also known as MIME type...
   CommunityTypes.MediaTypeIdentifier = function() {
-    Characteristic.call(this, 'Media Type Identifier', CommunityTypes.MediaTypeIdentifier.UUID);
+    Characteristic.call(this, "Media Type Identifier", CommunityTypes.MediaTypeIdentifier.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = null;
   };
-  CommunityTypes.MediaTypeIdentifier.UUID = '00004002-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaTypeIdentifier.UUID = "00004002-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaTypeIdentifier, Characteristic);
 
   CommunityTypes.MediaWidth = function() {
-    Characteristic.call(this, 'Media Width', CommunityTypes.MediaWidth.UUID);
+    Characteristic.call(this, "Media Width", CommunityTypes.MediaWidth.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT32,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT32,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.MediaWidth.UUID = '00004003-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaWidth.UUID = "00004003-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaWidth, Characteristic);
 
   CommunityTypes.MediaHeight = function() {
-    Characteristic.call(this, 'Media Width', CommunityTypes.MediaHeight.UUID);
+    Characteristic.call(this, "Media Width", CommunityTypes.MediaHeight.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT32,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT32,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.MediaHeight.UUID = '00004004-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaHeight.UUID = "00004004-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaHeight, Characteristic);
-  
-// courtesy of https://gist.github.com/gomfunkel/b1a046d729757120907c
+
+  // courtesy of https://gist.github.com/gomfunkel/b1a046d729757120907c
   CommunityTypes.Volts = function() {
-    Characteristic.call(this, 'Volts', CommunityTypes.Volts.UUID);
+    Characteristic.call(this, "Volts", CommunityTypes.Volts.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT16,
-      unit:     "V",
+      format: Characteristic.Formats.UINT16,
+      unit: "V",
       minValue: 0,
       maxValue: 65535,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.Volts.UUID = 'E863F10A-079E-48FF-8F27-9C2605A29F52';
+  CommunityTypes.Volts.UUID = "E863F10A-079E-48FF-8F27-9C2605A29F52";
   inherits(CommunityTypes.Volts, Characteristic);
 
   CommunityTypes.Amperes = function() {
-    Characteristic.call(this, 'Amps', CommunityTypes.Amperes.UUID);
+    Characteristic.call(this, "Amps", CommunityTypes.Amperes.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT16,
-      unit:     "A",
+      format: Characteristic.Formats.UINT16,
+      unit: "A",
       minValue: 0,
       maxValue: 65535,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.Amperes.UUID = 'E863F126-079E-48FF-8F27-9C2605A29F52';
+  CommunityTypes.Amperes.UUID = "E863F126-079E-48FF-8F27-9C2605A29F52";
   inherits(CommunityTypes.Amperes, Characteristic);
 
   CommunityTypes.Watts = function() {
-    Characteristic.call(this, 'Consumption', CommunityTypes.Watts.UUID);
+    Characteristic.call(this, "Consumption", CommunityTypes.Watts.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT16,
-      unit:     "W",
+      format: Characteristic.Formats.UINT16,
+      unit: "W",
       minValue: 0,
       maxValue: 65535,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.Watts.UUID = 'E863F10D-079E-48FF-8F27-9C2605A29F52';
+  CommunityTypes.Watts.UUID = "E863F10D-079E-48FF-8F27-9C2605A29F52";
   inherits(CommunityTypes.Watts, Characteristic);
 
   CommunityTypes.VoltAmperes = function() {
-    Characteristic.call(this, 'Apparent Power', CommunityTypes.VoltAmperes.UUID);
+    Characteristic.call(this, "Apparent Power", CommunityTypes.VoltAmperes.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT16,
-      unit:     "VA",
+      format: Characteristic.Formats.UINT16,
+      unit: "VA",
       minValue: 0,
       maxValue: 65535,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.VoltAmperes.UUID = 'E863F110-079E-48FF-8F27-9C2605A29F52';
+  CommunityTypes.VoltAmperes.UUID = "E863F110-079E-48FF-8F27-9C2605A29F52";
   inherits(CommunityTypes.VoltAmperes, Characteristic);
 
   CommunityTypes.KilowattHours = function() {
-    Characteristic.call(this, 'Total Consumption', CommunityTypes.KilowattHours.UUID);
+    Characteristic.call(this, "Total Consumption", CommunityTypes.KilowattHours.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT32,
-      unit:     "kWh",
+      format: Characteristic.Formats.UINT32,
+      unit: "kWh",
       minValue: 0,
       maxValue: 65535,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.KilowattHours.UUID = 'E863F10C-079E-48FF-8F27-9C2605A29F52';
+  CommunityTypes.KilowattHours.UUID = "E863F10C-079E-48FF-8F27-9C2605A29F52";
   inherits(CommunityTypes.KilowattHours, Characteristic);
 
   CommunityTypes.KilowattVoltAmpereHour = function() {
-    Characteristic.call(this, 'Apparent Energy', CommunityTypes.KilowattVoltAmpereHour.UUID);
+    Characteristic.call(this, "Apparent Energy", CommunityTypes.KilowattVoltAmpereHour.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT32,
-      unit:     "kVAh",
+      format: Characteristic.Formats.UINT32,
+      unit: "kVAh",
       minValue: 0,
       maxValue: 65535,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.KilowattVoltAmpereHour.UUID = 'E863F127-079E-48FF-8F27-9C2605A29F52';
+  CommunityTypes.KilowattVoltAmpereHour.UUID = "E863F127-079E-48FF-8F27-9C2605A29F52";
   inherits(CommunityTypes.KilowattVoltAmpereHour, Characteristic);
 
   CommunityTypes.BatteryLevel = function() {
-    Characteristic.call(this, 'Battery Level', CommunityTypes.BatteryLevel.UUID);
+    Characteristic.call(this, "Battery Level", CommunityTypes.BatteryLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT16,
+      format: Characteristic.Formats.UINT16,
       unit: Characteristic.Units.PERCENTAGE,
       maxValue: 100,
       minValue: 0,
       minStep: 1,
-      perms: [ Characteristic.Perms.READ ]
+      perms: [Characteristic.Perms.READ]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.BatteryLevel.UUID = 'E863F11B-079E-48FF-8F27-9C2605A29F52';
+  CommunityTypes.BatteryLevel.UUID = "E863F11B-079E-48FF-8F27-9C2605A29F52";
   inherits(CommunityTypes.BatteryLevel, Characteristic);
 
-// courtesy of https://github.com/robi-van-kinobi/homebridge-cubesensors
+  // courtesy of https://github.com/robi-van-kinobi/homebridge-cubesensors
 
-  CommunityTypes.AtmosphericPressureLevel = function () {
-    Characteristic.call(this, 'Barometric Pressure', CommunityTypes.AtmosphericPressureLevel.UUID);
+  CommunityTypes.AtmosphericPressureLevel = function() {
+    Characteristic.call(this, "Barometric Pressure", CommunityTypes.AtmosphericPressureLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      unit:     "mbar",
+      format: Characteristic.Formats.UINT8,
+      unit: "mbar",
       minValue: 800,
       maxValue: 1200,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.AtmosphericPressureLevel.UUID = '28FDA6BC-9C2A-4DEA-AAFD-B49DB6D155AB';
+  CommunityTypes.AtmosphericPressureLevel.UUID = "28FDA6BC-9C2A-4DEA-AAFD-B49DB6D155AB";
   inherits(CommunityTypes.AtmosphericPressureLevel, Characteristic);
 
-  CommunityTypes.NoiseLevel = function () {
-    Characteristic.call(this, 'Noise Level', CommunityTypes.NoiseLevel.UUID);
+  CommunityTypes.NoiseLevel = function() {
+    Characteristic.call(this, "Noise Level", CommunityTypes.NoiseLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      unit:     "dB",
+      format: Characteristic.Formats.UINT8,
+      unit: "dB",
       minValue: 0,
       maxValue: 200,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.NoiseLevel.UUID = '2CD7B6FD-419A-4740-8995-E3BFE43735AB';
+  CommunityTypes.NoiseLevel.UUID = "2CD7B6FD-419A-4740-8995-E3BFE43735AB";
   inherits(CommunityTypes.NoiseLevel, Characteristic);
 
-// courtesy of https://github.com/homespun/homebridge-platform-snmp
+  // courtesy of https://github.com/homespun/homebridge-platform-snmp
 
-  CommunityTypes.AirFlow = function () {
-    Characteristic.call(this, 'Air Flow', CommunityTypes.AirFlow.UUID);
+  CommunityTypes.AirFlow = function() {
+    Characteristic.call(this, "Air Flow", CommunityTypes.AirFlow.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      unit:     "m/s",
+      format: Characteristic.Formats.UINT8,
+      unit: "m/s",
       minValue: 0,
       maxValue: 135,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.AirFlow.UUID = '49C8AE5A-A3A5-41AB-BF1F-12D5654F9F41';
+  CommunityTypes.AirFlow.UUID = "49C8AE5A-A3A5-41AB-BF1F-12D5654F9F41";
   inherits(CommunityTypes.AirFlow, Characteristic);
 
-  CommunityTypes.NitrogenDioxideDetected = function () {
-    Characteristic.call(this, 'Nitrogen Dioxide Detected', CommunityTypes.NitrogenDioxideDetected.UUID);
+  CommunityTypes.NitrogenDioxideDetected = function() {
+    Characteristic.call(this, "Nitrogen Dioxide Detected", CommunityTypes.NitrogenDioxideDetected.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.NitrogenDioxideDetected.UUID = 'D737B40A-3AF0-4316-950F-76090B98C5CF';
+  CommunityTypes.NitrogenDioxideDetected.UUID = "D737B40A-3AF0-4316-950F-76090B98C5CF";
   inherits(CommunityTypes.NitrogenDioxideDetected, Characteristic);
 
   CommunityTypes.NitrogenDioxideDetected.NO2_LEVELS_NORMAL = 0;
   CommunityTypes.NitrogenDioxideDetected.NO2_LEVELS_ABNORMAL = 1;
 
-  CommunityTypes.NitrogenDioxideLevel = function () {
-    Characteristic.call(this, 'Nitrogen Dioxide Level', CommunityTypes.NitrogenDioxideLevel.UUID);
+  CommunityTypes.NitrogenDioxideLevel = function() {
+    Characteristic.call(this, "Nitrogen Dioxide Level", CommunityTypes.NitrogenDioxideLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppm",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppm",
       minValue: 0,
       maxValue: 1500,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.NitrogenDioxideLevel.UUID = 'B762A2AF-D9D0-4A79-814A-E9EBAB0ED290';
+  CommunityTypes.NitrogenDioxideLevel.UUID = "B762A2AF-D9D0-4A79-814A-E9EBAB0ED290";
   inherits(CommunityTypes.NitrogenDioxideLevel, Characteristic);
 
-  CommunityTypes.NitrogenDioxidePeakLevel = function () {
-    Characteristic.call(this, 'Nitrogen Dioxide Peak Level', CommunityTypes.NitrogenDioxidePeakLevel.UUID);
+  CommunityTypes.NitrogenDioxidePeakLevel = function() {
+    Characteristic.call(this, "Nitrogen Dioxide Peak Level", CommunityTypes.NitrogenDioxidePeakLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppm",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppm",
       minValue: 0,
       maxValue: 1500,
-      minStep:  1,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 1,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.NitrogenDioxidePeakLevel.UUID = 'B6594847-7B88-496C-A1A0-B7860F3D7601';
+  CommunityTypes.NitrogenDioxidePeakLevel.UUID = "B6594847-7B88-496C-A1A0-B7860F3D7601";
   inherits(CommunityTypes.NitrogenDioxidePeakLevel, Characteristic);
 
-// courtesy of https://github.com/homespun/homebridge-platform-aqe
-  CommunityTypes.OzoneDetected = function () {
-    Characteristic.call(this, 'Ozone Detected', CommunityTypes.OzoneDetected.UUID);
+  // courtesy of https://github.com/homespun/homebridge-platform-aqe
+  CommunityTypes.OzoneDetected = function() {
+    Characteristic.call(this, "Ozone Detected", CommunityTypes.OzoneDetected.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.OzoneDetected.UUID = '0168FA60-5CF4-4314-AA45-0F84E389A093';
+  CommunityTypes.OzoneDetected.UUID = "0168FA60-5CF4-4314-AA45-0F84E389A093";
   inherits(CommunityTypes.OzoneDetected, Characteristic);
 
   CommunityTypes.OzoneDetected.O3_LEVELS_NORMAL = 0;
   CommunityTypes.OzoneDetected.O3_LEVELS_ABNORMAL = 1;
 
-  CommunityTypes.OzoneLevel = function () {
-    Characteristic.call(this, 'Ozone Level', CommunityTypes.OzoneLevel.UUID);
+  CommunityTypes.OzoneLevel = function() {
+    Characteristic.call(this, "Ozone Level", CommunityTypes.OzoneLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppb",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppb",
       minValue: 0,
       maxValue: 1500,
-      minStep:  0.01,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 0.01,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.OzoneLevel.UUID = '03C17FD9-672E-42F5-8DD4-30C6822C739A';
+  CommunityTypes.OzoneLevel.UUID = "03C17FD9-672E-42F5-8DD4-30C6822C739A";
   inherits(CommunityTypes.OzoneLevel, Characteristic);
 
-  CommunityTypes.OzonePeakLevel = function () {
-    Characteristic.call(this, 'Ozone Peak Level', CommunityTypes.OzonePeakLevel.UUID);
+  CommunityTypes.OzonePeakLevel = function() {
+    Characteristic.call(this, "Ozone Peak Level", CommunityTypes.OzonePeakLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppb",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppb",
       minValue: 0,
       maxValue: 1500,
-      minStep:  0.01,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 0.01,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.OzonePeakLevel.UUID = '550EE1FF-FC66-4BB6-A1C1-4B0A07109AE3';
+  CommunityTypes.OzonePeakLevel.UUID = "550EE1FF-FC66-4BB6-A1C1-4B0A07109AE3";
   inherits(CommunityTypes.OzonePeakLevel, Characteristic);
 
-  CommunityTypes.SodiumDioxideDetected = function () {
-    Characteristic.call(this, 'Sodium Dioxide Detected', CommunityTypes.SodiumDioxideDetected.UUID);
+  CommunityTypes.SodiumDioxideDetected = function() {
+    Characteristic.call(this, "Sodium Dioxide Detected", CommunityTypes.SodiumDioxideDetected.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.SodiumDioxideDetected.UUID = '4D237DAB-1CB6-4D52-B446-4667F58F7D28';
+  CommunityTypes.SodiumDioxideDetected.UUID = "4D237DAB-1CB6-4D52-B446-4667F58F7D28";
   inherits(CommunityTypes.SodiumDioxideDetected, Characteristic);
 
   CommunityTypes.SodiumDioxideDetected.SO2_LEVELS_NORMAL = 0;
   CommunityTypes.SodiumDioxideDetected.SO2_LEVELS_ABNORMAL = 1;
 
-  CommunityTypes.SodiumDioxideLevel = function () {
-    Characteristic.call(this, 'Sodium Dioxide Level', CommunityTypes.SodiumDioxideLevel.UUID);
+  CommunityTypes.SodiumDioxideLevel = function() {
+    Characteristic.call(this, "Sodium Dioxide Level", CommunityTypes.SodiumDioxideLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppb",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppb",
       minValue: 0,
       maxValue: 1500,
-      minStep:  0.01,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 0.01,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.SodiumDioxideLevel.UUID = '66C4D315-FBEF-470E-9434-B047679F1141';
+  CommunityTypes.SodiumDioxideLevel.UUID = "66C4D315-FBEF-470E-9434-B047679F1141";
   inherits(CommunityTypes.SodiumDioxideLevel, Characteristic);
 
-  CommunityTypes.SodiumDioxidePeakLevel = function () {
-    Characteristic.call(this, 'Sodium Dioxide Peak Level', CommunityTypes.SodiumDioxidePeakLevel.UUID);
+  CommunityTypes.SodiumDioxidePeakLevel = function() {
+    Characteristic.call(this, "Sodium Dioxide Peak Level", CommunityTypes.SodiumDioxidePeakLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppb",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppb",
       minValue: 0,
       maxValue: 1500,
-      minStep:  0.01,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 0.01,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.SodiumDioxidePeakLevel.UUID = '4CD6F648-2F92-43D8-86DF-0E8DE75E033B';
+  CommunityTypes.SodiumDioxidePeakLevel.UUID = "4CD6F648-2F92-43D8-86DF-0E8DE75E033B";
   inherits(CommunityTypes.SodiumDioxidePeakLevel, Characteristic);
 
-  CommunityTypes.VolatileOrganicCompoundDetected = function () {
-    Characteristic.call(this, 'Volatile Organic Compound Detected', CommunityTypes.VolatileOrganicCompoundDetected.UUID);
+  CommunityTypes.VolatileOrganicCompoundDetected = function() {
+    Characteristic.call(
+      this,
+      "Volatile Organic Compound Detected",
+      CommunityTypes.VolatileOrganicCompoundDetected.UUID
+    );
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.UINT8,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.VolatileOrganicCompoundDetected.UUID = '65DBC0F5-C40B-4E04-ADED-DC70031B0B82';
+  CommunityTypes.VolatileOrganicCompoundDetected.UUID = "65DBC0F5-C40B-4E04-ADED-DC70031B0B82";
   inherits(CommunityTypes.VolatileOrganicCompoundDetected, Characteristic);
 
   CommunityTypes.VolatileOrganicCompoundDetected.VOC_LEVELS_NORMAL = 0;
   CommunityTypes.VolatileOrganicCompoundDetected.VOC_LEVELS_ABNORMAL = 1;
 
-  CommunityTypes.VolatileOrganicCompoundLevel = function () {
-    Characteristic.call(this, 'Volatile Organic Compound Level', CommunityTypes.VolatileOrganicCompoundLevel.UUID);
+  CommunityTypes.VolatileOrganicCompoundLevel = function() {
+    Characteristic.call(this, "Volatile Organic Compound Level", CommunityTypes.VolatileOrganicCompoundLevel.UUID);
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppb",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppb",
       minValue: 0,
       maxValue: 1500,
-      minStep:  0.01,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 0.01,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.VolatileOrganicCompoundLevel.UUID = '35C4C797-193D-4998-879F-A08514E87897';
+  CommunityTypes.VolatileOrganicCompoundLevel.UUID = "35C4C797-193D-4998-879F-A08514E87897";
   inherits(CommunityTypes.VolatileOrganicCompoundLevel, Characteristic);
 
-  CommunityTypes.VolatileOrganicCompoundPeakLevel = function () {
-    Characteristic.call(this, 'Volatile Organic Compound Peak Level', CommunityTypes.VolatileOrganicCompoundPeakLevel.UUID);
+  CommunityTypes.VolatileOrganicCompoundPeakLevel = function() {
+    Characteristic.call(
+      this,
+      "Volatile Organic Compound Peak Level",
+      CommunityTypes.VolatileOrganicCompoundPeakLevel.UUID
+    );
     this.setProps({
-      format:   Characteristic.Formats.FLOAT,
-      unit:     "ppb",
+      format: Characteristic.Formats.FLOAT,
+      unit: "ppb",
       minValue: 0,
       maxValue: 1500,
-      minStep:  0.01,
-      perms:    [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      minStep: 0.01,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
     this.value = this.getDefaultValue();
   };
-  CommunityTypes.VolatileOrganicCompoundPeakLevel.UUID = 'A62CB784-1916-4BDF-B840-BDB9F8A264E9';
+  CommunityTypes.VolatileOrganicCompoundPeakLevel.UUID = "A62CB784-1916-4BDF-B840-BDB9F8A264E9";
   inherits(CommunityTypes.VolatileOrganicCompoundPeakLevel, Characteristic);
 
   CommunityTypes.NotificationCode = function() {
-    Characteristic.call(this, 'Notification Code', CommunityTypes.NotificationCode.UUID);
+    Characteristic.call(this, "Notification Code", CommunityTypes.NotificationCode.UUID);
     this.setProps({
-      format:   Characteristic.Formats.UINT8,
+      format: Characteristic.Formats.UINT8,
       maxValue: 255,
       minValue: 0,
       minStep: 1,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY ]
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
     this.value = 255;
   };
-  CommunityTypes.NotificationCode.UUID = '381C47A3-CB06-4177-8E3D-A1B4C22EB031';
+  CommunityTypes.NotificationCode.UUID = "381C47A3-CB06-4177-8E3D-A1B4C22EB031";
   inherits(CommunityTypes.NotificationCode, Characteristic);
 
   CommunityTypes.NotificationText = function() {
-    Characteristic.call(this, 'Notification Text', CommunityTypes.NotificationText.UUID);
+    Characteristic.call(this, "Notification Text", CommunityTypes.NotificationText.UUID);
     this.setProps({
-      format:   Characteristic.Formats.STRING,
-      perms: [ Characteristic.Perms.READ, Characteristic.Perms.NOTIFY ]
+      format: Characteristic.Formats.STRING,
+      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
     });
-    this.value = '';
+    this.value = "";
   };
-  CommunityTypes.NotificationText.UUID = 'e244ca80-813e-423a-86bd-02f293b857a0';
+  CommunityTypes.NotificationText.UUID = "e244ca80-813e-423a-86bd-02f293b857a0";
   inherits(CommunityTypes.NotificationText, Characteristic);
 
   // Services
@@ -618,7 +625,7 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(CommunityTypes.Muting);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.AudioDeviceService.UUID = '00000001-0000-1000-8000-135D67EC4377';
+  CommunityTypes.AudioDeviceService.UUID = "00000001-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.AudioDeviceService, Service);
 
   CommunityTypes.PlaybackDeviceService = function(displayName, subtype) {
@@ -645,7 +652,7 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(CommunityTypes.MediaWidth);
     this.addOptionalCharacteristic(CommunityTypes.MediaHeight);
   };
-  CommunityTypes.PlaybackDeviceService.UUID = '00000002-0000-1000-8000-135D67EC4377';
+  CommunityTypes.PlaybackDeviceService.UUID = "00000002-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.PlaybackDeviceService, Service);
 
   // A media information service that has no playback controls, for e.g. DAB radio...
@@ -667,7 +674,7 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(CommunityTypes.MediaWidth);
     this.addOptionalCharacteristic(CommunityTypes.MediaHeight);
   };
-  CommunityTypes.MediaInformationService.UUID = '00000003-0000-1000-8000-135D67EC4377';
+  CommunityTypes.MediaInformationService.UUID = "00000003-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.MediaInformationService, Service);
 
   CommunityTypes.StillImageService = function(displayName, subtype) {
@@ -682,7 +689,7 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(CommunityTypes.MediaHeight);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.StillImageService.UUID = '00000004-0000-1000-8000-135D67EC4377';
+  CommunityTypes.StillImageService.UUID = "00000004-0000-1000-8000-135D67EC4377";
   inherits(CommunityTypes.StillImageService, Service);
 
   CommunityTypes.SecurityCameraService = function(displayName, subtype) {
@@ -702,10 +709,10 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.SecurityCameraService.UUID = '00000005-0000-1000-8000-135D67EC4377';
+  CommunityTypes.SecurityCameraService.UUID = "00000005-0000-1000-8000-135D67EC4377";
 
-// courtesy of https://github.com/robi-van-kinobi/homebridge-cubesensors
-  CommunityTypes.AtmosphericPressureSensor = function (displayName, subtype) {
+  // courtesy of https://github.com/robi-van-kinobi/homebridge-cubesensors
+  CommunityTypes.AtmosphericPressureSensor = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.AtmosphericPressureSensor.UUID, subtype);
 
     // Required Characteristics
@@ -718,10 +725,10 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.AtmosphericPressureSensor.UUID = 'B77831FD-D66A-46A4-B66D-FD7EE8DFE3CE';
+  CommunityTypes.AtmosphericPressureSensor.UUID = "B77831FD-D66A-46A4-B66D-FD7EE8DFE3CE";
   inherits(CommunityTypes.AtmosphericPressureSensor, Service);
 
-  CommunityTypes.NoiseLevelSensor = function (displayName, subtype) {
+  CommunityTypes.NoiseLevelSensor = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.NoiseLevelSensor.UUID, subtype);
 
     // Required Characteristics
@@ -734,12 +741,12 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.NoiseLevelSensor.UUID = '28FDA6BC-9C2A-4DEA-AAFD-B49DB6D155AB';
+  CommunityTypes.NoiseLevelSensor.UUID = "28FDA6BC-9C2A-4DEA-AAFD-B49DB6D155AB";
   inherits(CommunityTypes.NoiseLevelSensor, Service);
 
-// courtesy of https://github.com/homespun/homebridge-platform-snmp
+  // courtesy of https://github.com/homespun/homebridge-platform-snmp
 
-  CommunityTypes.AirFlowSensor = function (displayName, subtype) {
+  CommunityTypes.AirFlowSensor = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.AirFlowSensor.UUID, subtype);
 
     // Required Characteristics
@@ -752,10 +759,10 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.AirFlowSensor.UUID = 'AF5C192E-420F-4A13-AB67-B8F3968A4935';
+  CommunityTypes.AirFlowSensor.UUID = "AF5C192E-420F-4A13-AB67-B8F3968A4935";
   inherits(CommunityTypes.AirFlowSensor, Service);
 
-  CommunityTypes.NitrogenDioxideSensor = function (displayName, subtype) {
+  CommunityTypes.NitrogenDioxideSensor = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.NitrogenDioxideSensor.UUID, subtype);
 
     // Required Characteristics
@@ -770,11 +777,11 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.NitrogenDioxideSensor.UUID = '9F6B797D-D43B-4C88-9AA0-57018AB8A91E';
+  CommunityTypes.NitrogenDioxideSensor.UUID = "9F6B797D-D43B-4C88-9AA0-57018AB8A91E";
   inherits(CommunityTypes.NitrogenDioxideSensor, Service);
 
-// courtesy of https://github.com/homespun/homebridge-platform-aqe
-  CommunityTypes.OzoneSensor = function (displayName, subtype) {
+  // courtesy of https://github.com/homespun/homebridge-platform-aqe
+  CommunityTypes.OzoneSensor = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.OzoneSensor.UUID, subtype);
 
     // Required Characteristics
@@ -789,10 +796,10 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.OzoneSensor.UUID = 'B91C2BD6-D071-4F49-A23B-20721AC6CCEB';
+  CommunityTypes.OzoneSensor.UUID = "B91C2BD6-D071-4F49-A23B-20721AC6CCEB";
   inherits(CommunityTypes.OzoneSensor, Service);
 
-  CommunityTypes.SodiumDioxideSensor = function (displayName, subtype) {
+  CommunityTypes.SodiumDioxideSensor = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.SodiumDioxideSensor.UUID, subtype);
 
     // Required Characteristics
@@ -807,10 +814,10 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.SodiumDioxideSensor.UUID = 'FE7CFB1F-12D0-405D-86FD-7E268D65C453';
+  CommunityTypes.SodiumDioxideSensor.UUID = "FE7CFB1F-12D0-405D-86FD-7E268D65C453";
   inherits(CommunityTypes.SodiumDioxideSensor, Service);
 
-  CommunityTypes.VolatileOrganicCompoundSensor = function (displayName, subtype) {
+  CommunityTypes.VolatileOrganicCompoundSensor = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.VolatileOrganicCompoundSensor.UUID, subtype);
 
     // Required Characteristics
@@ -825,10 +832,10 @@ module.exports = function(homebridge) {
     this.addOptionalCharacteristic(Characteristic.StatusTampered);
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.VolatileOrganicCompoundSensor.UUID = '776E34BC-1660-46EC-A33D-2DFE5B958699';
+  CommunityTypes.VolatileOrganicCompoundSensor.UUID = "776E34BC-1660-46EC-A33D-2DFE5B958699";
   inherits(CommunityTypes.VolatileOrganicCompoundSensor, Service);
 
-  CommunityTypes.NotificationService = function (displayName, subtype) {
+  CommunityTypes.NotificationService = function(displayName, subtype) {
     Service.call(this, displayName, CommunityTypes.NotificationService.UUID, subtype);
 
     // Required Characteristics
@@ -838,10 +845,8 @@ module.exports = function(homebridge) {
     // Optional Characteristics
     this.addOptionalCharacteristic(Characteristic.Name);
   };
-  CommunityTypes.NotificationService.UUID = '074D8CE9-5B4B-48D5-9990-D98850C2F3FE';
+  CommunityTypes.NotificationService.UUID = "074D8CE9-5B4B-48D5-9990-D98850C2F3FE";
   inherits(CommunityTypes.NotificationService, Service);
-
 
   return CommunityTypes;
 };
-

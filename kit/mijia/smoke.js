@@ -1,4 +1,5 @@
-const Base = require('./base');
+const Base = require("./base");
+
 let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen;
 class Smoke extends Base {
   constructor(mijia) {
@@ -11,35 +12,36 @@ class Smoke extends Base {
   }
   /**
    * parse the gateway json msg
-   * @param {*json} json 
-   * @param {*remoteinfo} rinfo 
+   * @param {*json} json
+   * @param {*remoteinfo} rinfo
    */
   parseMsg(json, rinfo) {
-    let { cmd, model, sid } = json;
-    let data = JSON.parse(json.data);
-    let { voltage, alarm } = data;
+    const { cmd, model, sid } = json;
+    const data = JSON.parse(json.data);
+    const { voltage, alarm } = data;
     this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} alarm->${alarm}`);
     this.setSmokeSensor(sid, voltage, alarm);
   }
   /**
    * set up SmokeSensor(mijia smoke sensors)
-   * @param {*device id} sid 
-   * @param {*device voltage} voltage 
-   * @param {*device alarm} alarm 
+   * @param {*device id} sid
+   * @param {*device voltage} voltage
+   * @param {*device alarm} alarm
    */
   setSmokeSensor(sid, voltage, alarm) {
-    let uuid = UUIDGen.generate('Mijia-SmokeSensor@' + sid);
+    const uuid = UUIDGen.generate(`Mijia-SmokeSensor@${sid}`);
     let accessory = this.mijia.accessories[uuid];
     let service;
     if (!accessory) {
-      //init a new homekit accessory
-      let name = sid.substring(sid.length - 4);
+      // init a new homekit accessory
+      const name = sid.substring(sid.length - 4);
       accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
-      accessory.getService(Service.AccessoryInformation)
+      accessory
+        .getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, "Mijia")
         .setCharacteristic(Characteristic.Model, "Mijia SmokeSensor")
         .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on('identify', function (paired, callback) {
+      accessory.on("identify", (paired, callback) => {
         callback();
       });
       service = new Service.SmokeSensor(name);
@@ -50,16 +52,19 @@ class Smoke extends Base {
     }
     accessory.reachable = true;
     accessory.context.sid = sid;
-    accessory.context.model = 'smoke';
-    if (alarm == 0) { // 0:Release alarm
+    accessory.context.model = "smoke";
+    if (alarm == 0) {
+      // 0:Release alarm
       service.getCharacteristic(Characteristic.SmokeDetected).updateValue(false);
       service.getCharacteristic(Characteristic.StatusActive).updateValue(true);
       service.getCharacteristic(Characteristic.StatusFault).updateValue(Characteristic.StatusFault.NO_FAULT);
-    } else if (alarm == 1 || alarm == 2) { // 1: Fire alarm 2: Analog alarm
+    } else if (alarm == 1 || alarm == 2) {
+      // 1: Fire alarm 2: Analog alarm
       service.getCharacteristic(Characteristic.SmokeDetected).updateValue(true);
       service.getCharacteristic(Characteristic.StatusActive).updateValue(true);
       service.getCharacteristic(Characteristic.StatusFault).updateValue(Characteristic.StatusFault.NO_FAULT);
-    } else if (alarm == 8 || alarm == 64 || alarm == 32768) { // 8: Battery fault alarm 64: Sensitivity fault alarm 32768: IIC communication failure
+    } else if (alarm == 8 || alarm == 64 || alarm == 32768) {
+      // 8: Battery fault alarm 64: Sensitivity fault alarm 32768: IIC communication failure
       service.getCharacteristic(Characteristic.SmokeDetected).updateValue(false);
       service.getCharacteristic(Characteristic.StatusActive).updateValue(false);
       service.getCharacteristic(Characteristic.StatusFault).updateValue(Characteristic.StatusFault.GENERAL_FAULT);
