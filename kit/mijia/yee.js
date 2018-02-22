@@ -41,9 +41,7 @@ class YeeDevice {
       return;
     }
     this.connected = true;
-    this.hb_lost = 0;
     this.sock = new net.Socket();
-
     this.sock.on("data", data => {
       const msg = data.toString();
       const rsps = msg.split("\r\n");
@@ -79,61 +77,73 @@ class YeeDevice {
             }
           });
         } catch (e) {
-          this.mijia.log.error(`ERROR ${e} - ${json}`);
+          this.mijia.log.error(`ERROR ${e} - ${this.did} - ${json}`);
         }
       });
     });
 
     this.sock.on("end", () => {
-      this.mijia.log.error("END");
+      this.mijia.log.error(`END ${this.did}`);
       this.handleSockError(val => cb(val));
     });
 
     this.sock.on("error", e => {
-      this.mijia.log.error(`YEELIGHT ${e}`);
+      this.mijia.log.error(`YEELIGHT ${e} - ${this.did}`);
       this.handleSockError(val => cb(val));
     });
 
+    var timer;
     this.sock.connect(this.port, this.host, () => {
       this.sock.setNoDelay(true);
       this.retry_cnt = 0;
+      clearTimeout(timer);
       clearTimeout(this.retry_tmr);
-      // this.hb_tmr = setInterval(() => {
-      //   this.hb_lost++;
-      //   if (this.hb_lost > 2) {
-      //     this.mijia.log.warn("HEARTBEAT lost, close socket and reconnect");
-      //     this.handleSockError(val => cb(val));
-      //     return;
-      //   }
-      //   // this.mijia.log.debug(`Ping: ${this.did}`);
-      //   this.sendCmd({
-      //     id: -1,
-      //     method: "get_prop",
-      //     params: ["power", "bright", "rgb"]
-      //   });
-      // }, 10000);
+      clearInterval(this.hb_tmr);
+      this.hb_tmr = setInterval(() => {
+        this.hb_lost++;
+        if (this.hb_lost >= 2) {
+          this.mijia.log.warn(`HEARTBEAT lost for ${this.did}, close socket and reconnect`);
+          this.handleSockError(val => cb(val));
+          return;
+        }
+        // this.mijia.log.debug(`Ping: ${this.did}`);
+        this.sendCmd(
+          {
+            id: -1,
+            method: "get_prop",
+            params: ["power", "bright", "rgb"]
+          },
+          () => {}
+        );
+      }, 5000);
       cb(0);
     });
+    timer = setTimeout(() => {
+      if (this.sock) {
+        this.sock.end();
+      }
+    }, 15000);
   }
 
   handleSockError(cb) {
     this.connected = false;
     this.sock = null;
+    clearTimeout(this.retry_tmr);
     clearInterval(this.hb_tmr);
     this.retry_tmr = setTimeout(() => {
       this.retry_cnt = this.retry_cnt + 1;
-      if (this.retry_cnt >= 5) {
+      if (this.retry_cnt > 3) {
         cb(-1);
         return;
       }
       this.mijia.log.warn(`RETRY CONNECT @${this.did}: ${this.retry_cnt}`);
       this.connect(val => cb(val));
-    }, 2000);
+    }, 1000);
   }
 
   setPower(is_on, callback) {
     if (!this.connected) {
-      callback(new Error("Cannot send COMMAND"));
+      callback(new Error(`Cannot send COMMAND to ${this.did}`));
       return;
     }
     this.power = is_on;
@@ -149,7 +159,7 @@ class YeeDevice {
 
   setBright(val, callback) {
     if (!this.connected) {
-      callback(new Error("Cannot send COMMAND"));
+      callback(new Error(`Cannot send COMMAND to ${this.did}`));
       return;
     }
     this.bright = val;
@@ -178,7 +188,7 @@ class YeeDevice {
 
   setColor(hue, sat, callback) {
     if (!this.connected) {
-      callback(new Error("Cannot send COMMAND"));
+      callback(new Error(`Cannot send COMMAND to ${this.did}`));
       return;
     }
     this.hue = hue;
@@ -206,14 +216,6 @@ class YeeDevice {
     }
   }
 
-  // setBlink(callback) {
-  //   this.sendCmd({
-  //     id: 4,
-  //     method: "start_cf",
-  //     params: [6, 0, "500,2,4000,1,500,2,4000,50"]
-  //   });
-  // }
-
   setName(name, callback) {
     this.name = name;
     this.sendCmd(
@@ -229,11 +231,13 @@ class YeeDevice {
   sendCmd(cmd, callback) {
     if (this.sock == null || this.connected == false) {
       this.mijia.log.warn(`BROKEN ${this.did} - ${this.connected} - ${this.sock}`);
+      callback(new Error(`Cannot send COMMAND to ${this.did}`));
       return;
     }
     const msg = JSON.stringify(cmd);
     this.sock.write(`${msg}\r\n`, result => {
       if (result) {
+        this.mijia.log.error(`Yeelight send error ${result}`);
         callback(new Error("Cannot send COMMAND"));
       } else {
         callback();

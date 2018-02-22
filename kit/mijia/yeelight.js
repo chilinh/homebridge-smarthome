@@ -27,13 +27,13 @@ class Yeelight extends Base {
   }
 
   onDevFound(device) {
-    const { accessory, service, supportColor } = this.getLightBulb(device);
-    service.getCharacteristic(Characteristic.On).updateValue(device.power);
-    service.getCharacteristic(Characteristic.Brightness).updateValue(device.bright);
-    if (supportColor) {
-      service.getCharacteristic(Characteristic.Saturation).updateValue(device.sat);
-      service.getCharacteristic(Characteristic.Hue).updateValue(device.hue);
-    }
+    // const { accessory, service, supportColor } = this.getLightBulb(device);
+    // service.getCharacteristic(Characteristic.On).updateValue(device.power);
+    // service.getCharacteristic(Characteristic.Brightness).updateValue(device.bright);
+    // if (supportColor) {
+    //   service.getCharacteristic(Characteristic.Saturation).updateValue(device.sat);
+    //   service.getCharacteristic(Characteristic.Hue).updateValue(device.hue);
+    // }
   }
 
   onDevConnected(device) {
@@ -62,7 +62,7 @@ class Yeelight extends Base {
     accessory.reachable = true;
     switch (prop) {
       case "power":
-        service.getCharacteristic(Characteristic.On).updateValue(!!val);
+        service.getCharacteristic(Characteristic.On).updateValue(val);
         break;
       case "bright":
         service.getCharacteristic(Characteristic.Brightness).updateValue(val);
