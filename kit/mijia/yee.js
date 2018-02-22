@@ -222,9 +222,9 @@ class YeeDevice {
     const msg = JSON.stringify(cmd);
     this.sock.write(`${msg}\r\n`, result => {
       if (result) {
-        callback();
-      } else {
         callback(new Error("Cannot send COMMAND"));
+      } else {
+        callback();
       }
     });
   }
