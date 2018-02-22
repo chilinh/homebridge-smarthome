@@ -111,7 +111,7 @@ class Yeelight extends Base {
     if (!setters || setters.length == 0) {
       service.getCharacteristic(Characteristic.On).on("set", (value, callback) => {
         this.mijia.log.debug(`Yeelight ${device.did} power:${value}`);
-        device.setPower(!!value, callback);
+        device.setPower(value, callback);
       });
 
       service.getCharacteristic(Characteristic.Brightness).on("set", (value, callback) => {

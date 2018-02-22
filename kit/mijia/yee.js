@@ -122,16 +122,20 @@ class YeeDevice {
     clearInterval(this.hb_tmr);
     this.retry_tmr = setTimeout(() => {
       this.retry_cnt = this.retry_cnt + 1;
-      if (this.retry_cnt > 5) {
+      if (this.retry_cnt >= 5) {
         cb(-1);
         return;
       }
       this.mijia.log.warn(`RETRY CONNECT @${this.did}: ${this.retry_cnt}`);
       this.connect(val => cb(val));
-    }, 10000);
+    }, 2000);
   }
 
   setPower(is_on, callback) {
+    if (!this.connected) {
+      callback(new Error("Cannot send COMMAND"));
+      return;
+    }
     this.power = is_on;
     this.sendCmd(
       {
@@ -144,6 +148,10 @@ class YeeDevice {
   }
 
   setBright(val, callback) {
+    if (!this.connected) {
+      callback(new Error("Cannot send COMMAND"));
+      return;
+    }
     this.bright = val;
     const runCm = () => {
       this.sendCmd(
@@ -169,6 +177,10 @@ class YeeDevice {
   }
 
   setColor(hue, sat, callback) {
+    if (!this.connected) {
+      callback(new Error("Cannot send COMMAND"));
+      return;
+    }
     this.hue = hue;
     this.sat = sat;
     const runCm = () => {
