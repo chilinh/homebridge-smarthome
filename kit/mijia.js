@@ -76,7 +76,7 @@ class Mijia {
    */
   initConfig(config) {
     const { mijia } = config
-    const { sids, passwords, devs, sensor_names } = mijia
+    const { sids, passwords, devices: devs, sensor_names } = mijia
     if (sids && passwords) {
       if (sids.length != passwords.length) {
         throw new Error('sids length and passwords length must be equal')
