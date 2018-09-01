@@ -2,247 +2,247 @@
  * lib from broadlinkjs-sm
  * @link https://github.com/smka/broadlinkjs-sm
  */
-const util = require("util");
-const EventEmitter = require("events");
-const dgram = require("dgram");
-const os = require("os");
-const crypto = require("crypto");
+const util = require('util')
+const EventEmitter = require('events')
+const dgram = require('dgram')
+const os = require('os')
+const crypto = require('crypto')
 
 const Broadlink = (module.exports = function() {
-  EventEmitter.call(this);
-  this.devices = {};
-});
-util.inherits(Broadlink, EventEmitter);
+  EventEmitter.call(this)
+  this.devices = {}
+})
+util.inherits(Broadlink, EventEmitter)
 
 Broadlink.prototype.genDevice = function(devtype, host, mac) {
-  let dev;
+  let dev
   if (devtype == 0) {
     // SP1
-    dev = new device(host, mac);
-    dev.sp1();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp1()
+    return dev
   } else if (devtype == 0x2711) {
     // SP2
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype == 0x2719 || devtype == 0x7919 || devtype == 0x271a || devtype == 0x791a) {
     // Honeywell SP2
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype == 0x2720) {
     // SPMini
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype == 0x753e) {
     // SP3
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype == 0x2728) {
     // SPMini2
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype == 0x2733 || devtype == 0x273e) {
     // OEM branded SPMini Contros
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype >= 0x7530 && devtype <= 0x7918) {
     // OEM branded SPMini2
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype == 0x2736) {
     // SPMiniPlus
-    dev = new device(host, mac);
-    dev.sp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.sp2()
+    return dev
   } else if (devtype == 0x2712) {
     // RM2
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x2737) {
     // RM Mini
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x273d) {
     // RM Pro Phicomm
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x2783) {
     // RM2 Home Plus
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x277c) {
     // RM2 Home Plus GDT
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x272a) {
     // RM2 Pro Plus
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x2787) {
     // RM2 Pro Plus2
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x278b) {
     // RM2 Pro Plus BL
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x278f) {
     // RM Mini Shate
-    dev = new device(host, mac);
-    dev.rm();
-    return dev;
+    dev = new device(host, mac)
+    dev.rm()
+    return dev
   } else if (devtype == 0x2714) {
     // A1
-    dev = new device(host, mac);
-    dev.a1();
-    return dev;
+    dev = new device(host, mac)
+    dev.a1()
+    return dev
   } else if (devtype == 0x4eb5) {
     // MP1
-    dev = new device(host, mac);
-    dev.mp1();
-    return dev;
+    dev = new device(host, mac)
+    dev.mp1()
+    return dev
   } else if (devtype == 0x4f1b) {
     // MP2
-    dev = new device(host, mac);
-    dev.mp2();
-    return dev;
+    dev = new device(host, mac)
+    dev.mp2()
+    return dev
   }
-  return null;
-};
+  return null
+}
 
 Broadlink.prototype.discover = function(timeout) {
   if (!timeout) {
-    timeout = 1000;
+    timeout = 1000
   }
-  self = this;
-  const interfaces = os.networkInterfaces();
-  const addresses = [];
+  self = this
+  const interfaces = os.networkInterfaces()
+  const addresses = []
   for (const k in interfaces) {
     for (const k2 in interfaces[k]) {
-      var address = interfaces[k][k2];
-      if (address.family === "IPv4" && !address.internal) {
-        addresses.push(address.address);
+      var address = interfaces[k][k2]
+      if (address.family === 'IPv4' && !address.internal) {
+        addresses.push(address.address)
       }
     }
   }
-  var address = addresses[0].split(".");
-  const cs = dgram.createSocket({ type: "udp4", reuseAddr: true });
-  cs.on("listening", () => {
-    cs.setBroadcast(true);
+  var address = addresses[0].split('.')
+  const cs = dgram.createSocket({ type: 'udp4', reuseAddr: true })
+  cs.on('listening', () => {
+    cs.setBroadcast(true)
 
-    const port = cs.address().port;
-    const now = new Date();
-    const starttime = now.getTime();
+    const port = cs.address().port
+    const now = new Date()
+    const starttime = now.getTime()
 
-    const timezone = now.getTimezoneOffset() / -3600;
-    const packet = Buffer.alloc(0x30, 0);
+    const timezone = now.getTimezoneOffset() / -3600
+    const packet = Buffer.alloc(0x30, 0)
 
-    const year = now.getYear();
+    const year = now.getYear()
 
     if (timezone < 0) {
-      packet[0x08] = 0xff + timezone - 1;
-      packet[0x09] = 0xff;
-      packet[0x0a] = 0xff;
-      packet[0x0b] = 0xff;
+      packet[0x08] = 0xff + timezone - 1
+      packet[0x09] = 0xff
+      packet[0x0a] = 0xff
+      packet[0x0b] = 0xff
     } else {
-      packet[0x08] = timezone;
-      packet[0x09] = 0;
-      packet[0x0a] = 0;
-      packet[0x0b] = 0;
+      packet[0x08] = timezone
+      packet[0x09] = 0
+      packet[0x0a] = 0
+      packet[0x0b] = 0
     }
-    packet[0x0c] = year & 0xff;
-    packet[0x0d] = year >> 8;
-    packet[0x0e] = now.getMinutes();
-    packet[0x0f] = now.getHours();
-    const subyear = year % 100;
-    packet[0x10] = subyear;
-    packet[0x11] = now.getDay();
-    packet[0x12] = now.getDate();
-    packet[0x13] = now.getMonth();
-    packet[0x18] = parseInt(address[0]);
-    packet[0x19] = parseInt(address[1]);
-    packet[0x1a] = parseInt(address[2]);
-    packet[0x1b] = parseInt(address[3]);
-    packet[0x1c] = port & 0xff;
-    packet[0x1d] = port >> 8;
-    packet[0x26] = 6;
-    let checksum = 0xbeaf;
+    packet[0x0c] = year & 0xff
+    packet[0x0d] = year >> 8
+    packet[0x0e] = now.getMinutes()
+    packet[0x0f] = now.getHours()
+    const subyear = year % 100
+    packet[0x10] = subyear
+    packet[0x11] = now.getDay()
+    packet[0x12] = now.getDate()
+    packet[0x13] = now.getMonth()
+    packet[0x18] = parseInt(address[0])
+    packet[0x19] = parseInt(address[1])
+    packet[0x1a] = parseInt(address[2])
+    packet[0x1b] = parseInt(address[3])
+    packet[0x1c] = port & 0xff
+    packet[0x1d] = port >> 8
+    packet[0x26] = 6
+    let checksum = 0xbeaf
 
     for (let i = 0; i < packet.length; i++) {
-      checksum += packet[i];
+      checksum += packet[i]
     }
-    checksum &= 0xffff;
-    packet[0x20] = checksum & 0xff;
-    packet[0x21] = checksum >> 8;
+    checksum &= 0xffff
+    packet[0x20] = checksum & 0xff
+    packet[0x21] = checksum >> 8
 
-    cs.sendto(packet, 0, packet.length, 80, "255.255.255.255");
-  });
+    cs.sendto(packet, 0, packet.length, 80, '255.255.255.255')
+  })
 
-  cs.on("message", (msg, rinfo) => {
-    const host = rinfo;
+  cs.on('message', (msg, rinfo) => {
+    const host = rinfo
 
-    const mac = Buffer.alloc(6, 0);
-    msg.copy(mac, 0x00, 0x3f);
-    msg.copy(mac, 0x01, 0x3e);
-    msg.copy(mac, 0x02, 0x3d);
-    msg.copy(mac, 0x03, 0x3c);
-    msg.copy(mac, 0x04, 0x3b);
-    msg.copy(mac, 0x05, 0x3a);
+    const mac = Buffer.alloc(6, 0)
+    msg.copy(mac, 0x00, 0x3f)
+    msg.copy(mac, 0x01, 0x3e)
+    msg.copy(mac, 0x02, 0x3d)
+    msg.copy(mac, 0x03, 0x3c)
+    msg.copy(mac, 0x04, 0x3b)
+    msg.copy(mac, 0x05, 0x3a)
 
-    const devtype = msg[0x34] | (msg[0x35] << 8);
+    const devtype = msg[0x34] | (msg[0x35] << 8)
     if (!this.devices) {
-      this.devices = {};
+      this.devices = {}
     }
 
     if (!this.devices[mac]) {
-      const dev = this.genDevice(devtype, host, mac);
+      const dev = this.genDevice(devtype, host, mac)
       if (dev) {
-        this.devices[mac] = dev;
-        dev.on("deviceReady", () => {
-          this.emit("deviceReady", dev);
-        });
-        dev.auth();
+        this.devices[mac] = dev
+        dev.on('deviceReady', () => {
+          this.emit('deviceReady', dev)
+        })
+        dev.auth()
       }
     }
-  });
+  })
 
-  cs.on("close", () => {
+  cs.on('close', () => {
     // console.log('===Server Closed');
-  });
+  })
 
-  cs.bind();
+  cs.bind()
 
   setTimeout(() => {
-    cs.close();
-  }, timeout);
-};
+    cs.close()
+  }, timeout)
+}
 
 function device(host, mac, timeout = 10) {
-  this.host = host;
-  this.mac = mac;
-  this.emitter = new EventEmitter();
+  this.host = host
+  this.mac = mac
+  this.emitter = new EventEmitter()
 
-  this.on = this.emitter.on;
-  this.emit = this.emitter.emit;
-  this.removeListener = this.emitter.removeListener;
+  this.on = this.emitter.on
+  this.emit = this.emitter.emit
+  this.removeListener = this.emitter.removeListener
 
-  this.timeout = timeout;
-  this.count = Math.random() & 0xffff;
+  this.timeout = timeout
+  this.count = Math.random() & 0xffff
   this.key = new Buffer([
     0x09,
     0x76,
@@ -259,8 +259,8 @@ function device(host, mac, timeout = 10) {
     0xac,
     0xcf,
     0x8b,
-    0x02
-  ]);
+    0x02,
+  ])
   this.iv = new Buffer([
     0x56,
     0x2e,
@@ -277,340 +277,340 @@ function device(host, mac, timeout = 10) {
     0x5a,
     0x2e,
     0x6f,
-    0x58
-  ]);
-  this.id = new Buffer([0, 0, 0, 0]);
-  this.cs = dgram.createSocket({ type: "udp4", reuseAddr: true });
-  this.cs.on("listening", () => {
+    0x58,
+  ])
+  this.id = new Buffer([0, 0, 0, 0])
+  this.cs = dgram.createSocket({ type: 'udp4', reuseAddr: true })
+  this.cs.on('listening', () => {
     // this.cs.setBroadcast(true);
-  });
-  this.cs.on("message", (response, rinfo) => {
-    const enc_payload = Buffer.alloc(response.length - 0x38, 0);
-    response.copy(enc_payload, 0, 0x38);
+  })
+  this.cs.on('message', (response, rinfo) => {
+    const enc_payload = Buffer.alloc(response.length - 0x38, 0)
+    response.copy(enc_payload, 0, 0x38)
 
-    const decipher = crypto.createDecipheriv("aes-128-cbc", this.key, this.iv);
-    decipher.setAutoPadding(false);
-    let payload = decipher.update(enc_payload);
-    const p2 = decipher.final();
+    const decipher = crypto.createDecipheriv('aes-128-cbc', this.key, this.iv)
+    decipher.setAutoPadding(false)
+    let payload = decipher.update(enc_payload)
+    const p2 = decipher.final()
     if (p2) {
-      payload = Buffer.concat([payload, p2]);
+      payload = Buffer.concat([payload, p2])
     }
 
     if (!payload) {
-      return false;
+      return false
     }
 
-    const command = response[0x26];
-    const err = response[0x22] | (response[0x23] << 8);
+    const command = response[0x26]
+    const err = response[0x22] | (response[0x23] << 8)
 
-    if (err != 0) return;
+    if (err != 0) return
 
     if (command == 0xe9) {
-      this.key = Buffer.alloc(0x10, 0);
-      payload.copy(this.key, 0, 0x04, 0x14);
+      this.key = Buffer.alloc(0x10, 0)
+      payload.copy(this.key, 0, 0x04, 0x14)
 
-      this.id = Buffer.alloc(0x04, 0);
-      payload.copy(this.id, 0, 0x00, 0x04);
-      this.emit("deviceReady");
+      this.id = Buffer.alloc(0x04, 0)
+      payload.copy(this.id, 0, 0x00, 0x04)
+      this.emit('deviceReady')
     } else if (command == 0xee) {
-      this.emit("payload", err, payload);
+      this.emit('payload', err, payload)
     }
-  });
-  this.cs.bind();
-  this.type = "Unknown";
+  })
+  this.cs.bind()
+  this.type = 'Unknown'
 }
 
 device.prototype.auth = function() {
-  const payload = Buffer.alloc(0x50, 0);
-  payload[0x04] = 0x31;
-  payload[0x05] = 0x31;
-  payload[0x06] = 0x31;
-  payload[0x07] = 0x31;
-  payload[0x08] = 0x31;
-  payload[0x09] = 0x31;
-  payload[0x0a] = 0x31;
-  payload[0x0b] = 0x31;
-  payload[0x0c] = 0x31;
-  payload[0x0d] = 0x31;
-  payload[0x0e] = 0x31;
-  payload[0x0f] = 0x31;
-  payload[0x10] = 0x31;
-  payload[0x11] = 0x31;
-  payload[0x12] = 0x31;
-  payload[0x1e] = 0x01;
-  payload[0x2d] = 0x01;
-  payload[0x30] = "T".charCodeAt(0);
-  payload[0x31] = "e".charCodeAt(0);
-  payload[0x32] = "s".charCodeAt(0);
-  payload[0x33] = "t".charCodeAt(0);
-  payload[0x34] = " ".charCodeAt(0);
-  payload[0x35] = " ".charCodeAt(0);
-  payload[0x36] = "1".charCodeAt(0);
+  const payload = Buffer.alloc(0x50, 0)
+  payload[0x04] = 0x31
+  payload[0x05] = 0x31
+  payload[0x06] = 0x31
+  payload[0x07] = 0x31
+  payload[0x08] = 0x31
+  payload[0x09] = 0x31
+  payload[0x0a] = 0x31
+  payload[0x0b] = 0x31
+  payload[0x0c] = 0x31
+  payload[0x0d] = 0x31
+  payload[0x0e] = 0x31
+  payload[0x0f] = 0x31
+  payload[0x10] = 0x31
+  payload[0x11] = 0x31
+  payload[0x12] = 0x31
+  payload[0x1e] = 0x01
+  payload[0x2d] = 0x01
+  payload[0x30] = 'T'.charCodeAt(0)
+  payload[0x31] = 'e'.charCodeAt(0)
+  payload[0x32] = 's'.charCodeAt(0)
+  payload[0x33] = 't'.charCodeAt(0)
+  payload[0x34] = ' '.charCodeAt(0)
+  payload[0x35] = ' '.charCodeAt(0)
+  payload[0x36] = '1'.charCodeAt(0)
 
-  this.sendPacket(0x65, payload);
-};
+  this.sendPacket(0x65, payload)
+}
 
 device.prototype.exit = function() {
-  const self = this;
+  const self = this
   setTimeout(() => {
-    self.cs.close();
-  }, 500);
-};
+    self.cs.close()
+  }, 500)
+}
 
 device.prototype.getType = function() {
-  return this.type;
-};
+  return this.type
+}
 
 device.prototype.sendPacket = function(command, payload) {
-  this.count = (this.count + 1) & 0xffff;
-  let packet = Buffer.alloc(0x38, 0);
-  packet[0x00] = 0x5a;
-  packet[0x01] = 0xa5;
-  packet[0x02] = 0xaa;
-  packet[0x03] = 0x55;
-  packet[0x04] = 0x5a;
-  packet[0x05] = 0xa5;
-  packet[0x06] = 0xaa;
-  packet[0x07] = 0x55;
-  packet[0x24] = 0x2a;
-  packet[0x25] = 0x27;
-  packet[0x26] = command;
-  packet[0x28] = this.count & 0xff;
-  packet[0x29] = this.count >> 8;
-  packet[0x2a] = this.mac[0];
-  packet[0x2b] = this.mac[1];
-  packet[0x2c] = this.mac[2];
-  packet[0x2d] = this.mac[3];
-  packet[0x2e] = this.mac[4];
-  packet[0x2f] = this.mac[5];
-  packet[0x30] = this.id[0];
-  packet[0x31] = this.id[1];
-  packet[0x32] = this.id[2];
-  packet[0x33] = this.id[3];
+  this.count = (this.count + 1) & 0xffff
+  let packet = Buffer.alloc(0x38, 0)
+  packet[0x00] = 0x5a
+  packet[0x01] = 0xa5
+  packet[0x02] = 0xaa
+  packet[0x03] = 0x55
+  packet[0x04] = 0x5a
+  packet[0x05] = 0xa5
+  packet[0x06] = 0xaa
+  packet[0x07] = 0x55
+  packet[0x24] = 0x2a
+  packet[0x25] = 0x27
+  packet[0x26] = command
+  packet[0x28] = this.count & 0xff
+  packet[0x29] = this.count >> 8
+  packet[0x2a] = this.mac[0]
+  packet[0x2b] = this.mac[1]
+  packet[0x2c] = this.mac[2]
+  packet[0x2d] = this.mac[3]
+  packet[0x2e] = this.mac[4]
+  packet[0x2f] = this.mac[5]
+  packet[0x30] = this.id[0]
+  packet[0x31] = this.id[1]
+  packet[0x32] = this.id[2]
+  packet[0x33] = this.id[3]
 
-  let checksum = 0xbeaf;
+  let checksum = 0xbeaf
   for (var i = 0; i < payload.length; i++) {
-    checksum += payload[i];
-    checksum &= 0xffff;
+    checksum += payload[i]
+    checksum &= 0xffff
   }
 
-  const cipher = crypto.createCipheriv("aes-128-cbc", this.key, this.iv);
-  payload = cipher.update(payload);
-  const p2 = cipher.final();
+  const cipher = crypto.createCipheriv('aes-128-cbc', this.key, this.iv)
+  payload = cipher.update(payload)
+  const p2 = cipher.final()
 
-  packet[0x34] = checksum & 0xff;
-  packet[0x35] = checksum >> 8;
+  packet[0x34] = checksum & 0xff
+  packet[0x35] = checksum >> 8
 
-  packet = Buffer.concat([packet, payload]);
+  packet = Buffer.concat([packet, payload])
 
-  checksum = 0xbeaf;
+  checksum = 0xbeaf
   for (var i = 0; i < packet.length; i++) {
-    checksum += packet[i];
-    checksum &= 0xffff;
+    checksum += packet[i]
+    checksum &= 0xffff
   }
-  packet[0x20] = checksum & 0xff;
-  packet[0x21] = checksum >> 8;
+  packet[0x20] = checksum & 0xff
+  packet[0x21] = checksum >> 8
   // console.log("dev send packet to " + this.host.address + ":" + this.host.port);
-  this.cs.sendto(packet, 0, packet.length, this.host.port, this.host.address);
-};
+  this.cs.sendto(packet, 0, packet.length, this.host.port, this.host.address)
+}
 
 device.prototype.mp1 = function() {
-  this.type = "MP1";
+  this.type = 'MP1'
 
   this.set_power = function(sid, state) {
     // """Sets the power state of the smart power strip."""
-    const sid_mask = 0x01 << (sid - 1);
-    const packet = Buffer.alloc(16, 0);
-    packet[0x00] = 0x0d;
-    packet[0x02] = 0xa5;
-    packet[0x03] = 0xa5;
-    packet[0x04] = 0x5a;
-    packet[0x05] = 0x5a;
-    packet[0x06] = 0xb2 + (state ? sid_mask << 1 : sid_mask);
-    packet[0x07] = 0xc0;
-    packet[0x08] = 0x02;
-    packet[0x0a] = 0x03;
-    packet[0x0d] = sid_mask;
-    packet[0x0e] = state ? sid_mask : 0;
+    const sid_mask = 0x01 << (sid - 1)
+    const packet = Buffer.alloc(16, 0)
+    packet[0x00] = 0x0d
+    packet[0x02] = 0xa5
+    packet[0x03] = 0xa5
+    packet[0x04] = 0x5a
+    packet[0x05] = 0x5a
+    packet[0x06] = 0xb2 + (state ? sid_mask << 1 : sid_mask)
+    packet[0x07] = 0xc0
+    packet[0x08] = 0x02
+    packet[0x0a] = 0x03
+    packet[0x0d] = sid_mask
+    packet[0x0e] = state ? sid_mask : 0
 
-    this.sendPacket(0x6a, packet);
-  };
+    this.sendPacket(0x6a, packet)
+  }
 
   this.check_power = function() {
     // """Returns the power state of the smart power strip in raw format."""
-    const packet = Buffer.alloc(16, 0);
-    packet[0x00] = 0x0a;
-    packet[0x02] = 0xa5;
-    packet[0x03] = 0xa5;
-    packet[0x04] = 0x5a;
-    packet[0x05] = 0x5a;
-    packet[0x06] = 0xae;
-    packet[0x07] = 0xc0;
-    packet[0x08] = 0x01;
+    const packet = Buffer.alloc(16, 0)
+    packet[0x00] = 0x0a
+    packet[0x02] = 0xa5
+    packet[0x03] = 0xa5
+    packet[0x04] = 0x5a
+    packet[0x05] = 0x5a
+    packet[0x06] = 0xae
+    packet[0x07] = 0xc0
+    packet[0x08] = 0x01
 
-    this.sendPacket(0x6a, packet);
-  };
+    this.sendPacket(0x6a, packet)
+  }
 
-  this.on("payload", (err, payload) => {
-    const param = payload[0];
+  this.on('payload', (err, payload) => {
+    const param = payload[0]
     switch (param) {
       case 14:
-        var s1 = Boolean(payload[0x0e] & 0x01);
-        var s2 = Boolean(payload[0x0e] & 0x02);
-        var s3 = Boolean(payload[0x0e] & 0x04);
-        var s4 = Boolean(payload[0x0e] & 0x08);
-        this.emit("mp_power", [s1, s2, s3, s4]);
-        break;
+        var s1 = Boolean(payload[0x0e] & 0x01)
+        var s2 = Boolean(payload[0x0e] & 0x02)
+        var s3 = Boolean(payload[0x0e] & 0x04)
+        var s4 = Boolean(payload[0x0e] & 0x08)
+        this.emit('mp_power', [s1, s2, s3, s4])
+        break
       default:
-        break;
+        break
     }
-  });
-};
+  })
+}
 
 device.prototype.mp2 = function() {
-  this.type = "MP2";
+  this.type = 'MP2'
 
   this.set_power = function(sid, state) {
     // """Sets the power state of the smart power strip."""
-    const sid_mask = 0x01 << (sid - 1);
-    const packet = Buffer.alloc(16, 0);
-    packet[0x00] = 0x0d;
-    packet[0x02] = 0xa5;
-    packet[0x03] = 0xa5;
-    packet[0x04] = 0x5a;
-    packet[0x05] = 0x5a;
-    packet[0x06] = 0xb2 + (state ? sid_mask << 1 : sid_mask);
-    packet[0x07] = 0xc0;
-    packet[0x08] = 0x02;
-    packet[0x0a] = 0x03;
-    packet[0x0d] = sid_mask;
-    packet[0x0e] = state ? sid_mask : 0;
+    const sid_mask = 0x01 << (sid - 1)
+    const packet = Buffer.alloc(16, 0)
+    packet[0x00] = 0x0d
+    packet[0x02] = 0xa5
+    packet[0x03] = 0xa5
+    packet[0x04] = 0x5a
+    packet[0x05] = 0x5a
+    packet[0x06] = 0xb2 + (state ? sid_mask << 1 : sid_mask)
+    packet[0x07] = 0xc0
+    packet[0x08] = 0x02
+    packet[0x0a] = 0x03
+    packet[0x0d] = sid_mask
+    packet[0x0e] = state ? sid_mask : 0
 
-    this.sendPacket(0x6a, packet);
-  };
+    this.sendPacket(0x6a, packet)
+  }
 
   this.check_power = function() {
     // """Returns the power state of the smart power strip in raw format."""
-    const packet = Buffer.alloc(16, 0);
-    packet[0x00] = 0x0a;
-    packet[0x02] = 0xa5;
-    packet[0x03] = 0xa5;
-    packet[0x04] = 0x5a;
-    packet[0x05] = 0x5a;
-    packet[0x06] = 0xae;
-    packet[0x07] = 0xc0;
-    packet[0x08] = 0x01;
+    const packet = Buffer.alloc(16, 0)
+    packet[0x00] = 0x0a
+    packet[0x02] = 0xa5
+    packet[0x03] = 0xa5
+    packet[0x04] = 0x5a
+    packet[0x05] = 0x5a
+    packet[0x06] = 0xae
+    packet[0x07] = 0xc0
+    packet[0x08] = 0x01
 
-    this.sendPacket(0x6a, packet);
-  };
+    this.sendPacket(0x6a, packet)
+  }
 
-  this.on("payload", (err, payload) => {
-    const param = payload[0];
+  this.on('payload', (err, payload) => {
+    const param = payload[0]
     switch (param) {
       case 0x1b:
-        var s1 = Boolean(payload[0x0e] & 0x01);
-        var s2 = Boolean(payload[0x0e] & 0x02);
-        var s3 = Boolean(payload[0x0e] & 0x04);
-        var s4 = Boolean(payload[0x0e] & 0x08);
-        this.emit("mp_power", [s1, s2, s3, s4]);
-        break;
+        var s1 = Boolean(payload[0x0e] & 0x01)
+        var s2 = Boolean(payload[0x0e] & 0x02)
+        var s3 = Boolean(payload[0x0e] & 0x04)
+        var s4 = Boolean(payload[0x0e] & 0x08)
+        this.emit('mp_power', [s1, s2, s3, s4])
+        break
       default:
-        break;
+        break
     }
-  });
-};
+  })
+}
 
 device.prototype.sp1 = function() {
-  this.type = "SP1";
+  this.type = 'SP1'
   this.set_power = function(state) {
-    const packet = Buffer.alloc(4, 4);
-    packet[0] = state;
-    this.sendPacket(0x66, packet);
-  };
-};
+    const packet = Buffer.alloc(4, 4)
+    packet[0] = state
+    this.sendPacket(0x66, packet)
+  }
+}
 
 device.prototype.sp2 = function() {
-  const self = this;
-  this.type = "SP2";
+  const self = this
+  this.type = 'SP2'
   this.set_power = function(state) {
     // """Sets the power state of the smart plug."""
-    const packet = Buffer.alloc(16, 0);
-    packet[0] = 2;
-    packet[4] = state ? 1 : 0;
-    this.sendPacket(0x6a, packet);
-  };
+    const packet = Buffer.alloc(16, 0)
+    packet[0] = 2
+    packet[4] = state ? 1 : 0
+    this.sendPacket(0x6a, packet)
+  }
 
   this.check_power = function() {
     // """Returns the power state of the smart plug."""
-    const packet = Buffer.alloc(16, 0);
-    packet[0] = 1;
-    this.sendPacket(0x6a, packet);
-  };
+    const packet = Buffer.alloc(16, 0)
+    packet[0] = 1
+    this.sendPacket(0x6a, packet)
+  }
 
-  this.on("payload", (err, payload) => {
-    const param = payload[0];
+  this.on('payload', (err, payload) => {
+    const param = payload[0]
     switch (param) {
       case 1: // get from check_power
-        var pwr = Boolean(payload[0x4]);
-        this.emit("power", pwr);
-        break;
+        var pwr = Boolean(payload[0x4])
+        this.emit('power', pwr)
+        break
     }
-  });
-};
+  })
+}
 
 device.prototype.a1 = function() {
-  this.type = "A1";
+  this.type = 'A1'
   this.check_sensors = function() {
-    const packet = Buffer.alloc(16, 0);
-    packet[0] = 1;
-    this.sendPacket(0x6a, packet);
-  };
+    const packet = Buffer.alloc(16, 0)
+    packet[0] = 1
+    this.sendPacket(0x6a, packet)
+  }
 
   this.check_sensors_raw = function() {
-    const packet = Buffer.alloc(16, 0);
-    packet[0] = 1;
-    this.sendPacket(0x6a, packet);
-  };
-};
+    const packet = Buffer.alloc(16, 0)
+    packet[0] = 1
+    this.sendPacket(0x6a, packet)
+  }
+}
 
 device.prototype.rm = function() {
-  this.type = "RM2";
+  this.type = 'RM2'
   this.checkData = function() {
-    const packet = Buffer.alloc(16, 0);
-    packet[0] = 4;
-    this.sendPacket(0x6a, packet);
-  };
+    const packet = Buffer.alloc(16, 0)
+    packet[0] = 4
+    this.sendPacket(0x6a, packet)
+  }
 
   this.sendData = function(data) {
-    packet = new Buffer([0x02, 0x00, 0x00, 0x00]);
-    packet = Buffer.concat([packet, data]);
-    this.sendPacket(0x6a, packet);
-  };
+    packet = new Buffer([0x02, 0x00, 0x00, 0x00])
+    packet = Buffer.concat([packet, data])
+    this.sendPacket(0x6a, packet)
+  }
 
   this.enterLearning = function() {
-    const packet = Buffer.alloc(16, 0);
-    packet[0] = 3;
-    this.sendPacket(0x6a, packet);
-  };
+    const packet = Buffer.alloc(16, 0)
+    packet[0] = 3
+    this.sendPacket(0x6a, packet)
+  }
 
   this.checkTemperature = function() {
-    const packet = Buffer.alloc(16, 0);
-    packet[0] = 1;
-    this.sendPacket(0x6a, packet);
-  };
+    const packet = Buffer.alloc(16, 0)
+    packet[0] = 1
+    this.sendPacket(0x6a, packet)
+  }
 
-  this.on("payload", (err, payload) => {
-    const param = payload[0];
+  this.on('payload', (err, payload) => {
+    const param = payload[0]
     switch (param) {
       case 1:
-        var temp = (payload[0x4] * 10 + payload[0x5]) / 10.0;
-        this.emit("temperature", temp);
-        break;
+        var temp = (payload[0x4] * 10 + payload[0x5]) / 10.0
+        this.emit('temperature', temp)
+        break
       case 4: // get from check_data
-        var data = Buffer.alloc(payload.length - 4, 0);
-        payload.copy(data, 0, 4);
-        this.emit("rawData", data);
-        break;
+        var data = Buffer.alloc(payload.length - 4, 0)
+        payload.copy(data, 0, 4)
+        this.emit('rawData', data)
+        break
     }
-  });
-};
+  })
+}

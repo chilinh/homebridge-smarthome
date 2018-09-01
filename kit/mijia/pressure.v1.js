@@ -1,28 +1,28 @@
-const Base = require("./base");
+const Base = require('./base')
 
-let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen, CommunityTypes;
+let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen, CommunityTypes
 class PressureV1 extends Base {
   constructor(mijia) {
-    super(mijia);
-    PlatformAccessory = mijia.PlatformAccessory;
-    Accessory = mijia.Accessory;
-    Service = mijia.Service;
-    Characteristic = mijia.Characteristic;
-    UUIDGen = mijia.UUIDGen;
-    CommunityTypes = mijia.CommunityTypes;
+    super(mijia)
+    PlatformAccessory = mijia.PlatformAccessory
+    Accessory = mijia.Accessory
+    Service = mijia.Service
+    Characteristic = mijia.Characteristic
+    UUIDGen = mijia.UUIDGen
+    CommunityTypes = mijia.CommunityTypes
   }
   /**
    * parse the gateway json msg
    * @param {*json} json
    * @param {*remoteinfo} rinfo
    */
-  parseMsg(json, rinfo) {
-    const { cmd, model, sid } = json;
-    const data = JSON.parse(json.data);
-    const { voltage, pressure } = data;
-    this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} pressure->${pressure}`);
+  parseMsg(json, _rinfo) {
+    const { cmd, model, sid } = json
+    const data = JSON.parse(json.data)
+    const { voltage, pressure } = data
+    this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} pressure->${pressure}`)
     if (pressure != undefined) {
-      this.setPressureSensor(sid, voltage, pressure);
+      this.setPressureSensor(sid, voltage, pressure)
     }
   }
   /**
@@ -32,39 +32,39 @@ class PressureV1 extends Base {
    * @param {*device pressure} pressure
    */
   setPressureSensor(sid, voltage, pressure) {
-    const uuid = UUIDGen.generate(`Aqara-PressureSensor@${sid}`);
-    let accessory = this.mijia.accessories[uuid];
-    let service;
+    const uuid = UUIDGen.generate(`Aqara-PressureSensor@${sid}`)
+    let accessory = this.mijia.accessories[uuid]
+    let service
     if (!accessory) {
       // init a new homekit accessory
-      const name = sid.substring(sid.length - 4);
-      accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
+      const name = sid.substring(sid.length - 4)
+      accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR)
       accessory
         .getService(Service.AccessoryInformation)
-        .setCharacteristic(Characteristic.Manufacturer, "Aqara")
-        .setCharacteristic(Characteristic.Model, "Aqara PressureSensor")
-        .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on("identify", (paired, callback) => {
-        callback();
-      });
-      service = new CommunityTypes.AtmosphericPressureSensor(name);
-      accessory.addService(service, name);
-      accessory.addService(new Service.BatteryService(name), name);
+        .setCharacteristic(Characteristic.Manufacturer, 'Aqara')
+        .setCharacteristic(Characteristic.Model, 'Aqara PressureSensor')
+        .setCharacteristic(Characteristic.SerialNumber, sid)
+      accessory.on('identify', (paired, callback) => {
+        callback()
+      })
+      service = new CommunityTypes.AtmosphericPressureSensor(name)
+      accessory.addService(service, name)
+      accessory.addService(new Service.BatteryService(name), name)
     } else {
-      service = accessory.getService(CommunityTypes.AtmosphericPressureSensor);
+      service = accessory.getService(CommunityTypes.AtmosphericPressureSensor)
     }
-    accessory.reachable = true;
-    accessory.context.sid = sid;
-    accessory.context.model = "weather.v1";
+    accessory.reachable = true
+    accessory.context.sid = sid
+    accessory.context.model = 'weather.v1'
     if (pressure != undefined) {
-      service.getCharacteristic(Characteristic.AtmosphericPressureLevel).updateValue(pressure);
+      service.getCharacteristic(Characteristic.AtmosphericPressureLevel).updateValue(pressure)
     }
-    this.setBatteryService(sid, voltage, accessory);
+    this.setBatteryService(sid, voltage, accessory)
     if (!this.mijia.accessories[uuid]) {
-      this.mijia.accessories[uuid] = accessory;
-      this.registerAccessory([accessory]);
+      this.mijia.accessories[uuid] = accessory
+      this.registerAccessory([accessory])
     }
-    return accessory;
+    return accessory
   }
 }
-module.exports = PressureV1;
+module.exports = PressureV1

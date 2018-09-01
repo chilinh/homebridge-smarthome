@@ -1,5 +1,5 @@
-const mp = require("./mp");
+const mp = require('./mp')
 
 module.exports = {
-  MP: mp
-};
+  MP: mp,
+}
