@@ -17,14 +17,13 @@ class PowerPlug extends Base {
     this.discover()
   }
 
-  setPowerPlug(reg, _channel, device) {
+  setPowerPlug(reg, channel, device) {
     const sid = reg.id
-    const sub = sid.substring(sid.length - 4)
     const model = device.model
     const uuid = UUIDGen.generate(`Mijia-PowerPlug@${sid}`)
     let accessory = this.mijia.accessories[uuid]
     if (!accessory) {
-      const name = `Plug ${this.mijia.sensor_names[sub] ? this.mijia.sensor_names[sub] : sub}`
+      const name = `Plug ${this.mijia.sensor_names[sid] ? this.mijia.sensor_names[sid] : sid}`
       accessory = new PlatformAccessory(name, uuid, Accessory.Categories.FAN)
       accessory
         .getService(Service.AccessoryInformation)
@@ -44,6 +43,7 @@ class PowerPlug extends Base {
     const service = accessory.getService(Service.Outlet)
 
     // update Characteristics
+    // let status = false
     if (device != undefined) {
       if (model == 'chuangmi.plug.v1') {
         // if (channel == "main") {
@@ -74,12 +74,12 @@ class PowerPlug extends Base {
             dev
               .turnOn()
               .then(_ => callback())
-              .catch(e => this.mijia.log.warn(`PowerPlug ${sid} error ${e}`))
+              .catch(e => this.mijia.log.warb(`PowerPlug ${sid} error ${e}`))
           } else {
             dev
               .turnOff()
               .then(_ => callback())
-              .catch(e => this.mijia.log.warn(`PowerPlug ${sid} error ${e}`))
+              .catch(e => this.mijia.log.warb(`PowerPlug ${sid} error ${e}`))
           }
         }
       })
@@ -99,6 +99,7 @@ class PowerPlug extends Base {
         // power plug support Auto-token
         return
       }
+
       this.mijia.log.debug(`FIND POWER PLUG ${reg.id} - ${reg.address}`)
 
       miio
