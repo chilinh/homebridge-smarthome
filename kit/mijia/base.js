@@ -1,26 +1,26 @@
-let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen;
+let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen
 class Base {
   constructor(mijia) {
-    this.mijia = mijia;
-    PlatformAccessory = mijia.PlatformAccessory;
-    Accessory = mijia.Accessory;
-    Service = mijia.Service;
-    Characteristic = mijia.Characteristic;
-    UUIDGen = mijia.UUIDGen;
+    this.mijia = mijia
+    PlatformAccessory = mijia.PlatformAccessory
+    Accessory = mijia.Accessory
+    Service = mijia.Service
+    Characteristic = mijia.Characteristic
+    UUIDGen = mijia.UUIDGen
   }
   /**
    * return true if the zigbee devices battery level is low
    * @param {*voltage} voltage
    */
   isBatteryLow(voltage) {
-    return isNaN(voltage) ? true : !(voltage > 2800);
+    return isNaN(voltage) ? true : !(voltage > 2800)
   }
   /**
    * return the devices battery level in homekit
    * @param {*} voltage
    */
   getBatteryLevel(voltage) {
-    return isNaN(voltage) ? 0 : (voltage - 2800) / 400 * 100;
+    return isNaN(voltage) ? 0 : ((voltage - 2800) / 400) * 100
   }
   /**
    * setup
@@ -29,13 +29,13 @@ class Base {
    * @param {*device homekit accessory} accessory
    */
   setBatteryService(sid, voltage, accessory) {
-    const service = accessory.getService(Service.BatteryService);
+    const service = accessory.getService(Service.BatteryService)
     if (voltage != undefined && service != undefined) {
-      const isBatteryLow = this.isBatteryLow(voltage);
-      const batteryLevel = this.getBatteryLevel(voltage);
-      service.getCharacteristic(Characteristic.StatusLowBattery).updateValue(isBatteryLow);
-      service.getCharacteristic(Characteristic.BatteryLevel).updateValue(batteryLevel);
-      service.getCharacteristic(Characteristic.ChargingState).updateValue(false);
+      const isBatteryLow = this.isBatteryLow(voltage)
+      const batteryLevel = this.getBatteryLevel(voltage)
+      service.getCharacteristic(Characteristic.StatusLowBattery).updateValue(isBatteryLow)
+      service.getCharacteristic(Characteristic.BatteryLevel).updateValue(batteryLevel)
+      service.getCharacteristic(Characteristic.ChargingState).updateValue(false)
     }
   }
   /**
@@ -47,15 +47,15 @@ class Base {
    * @param {*device homekit accessory} accessory
    */
   setBatteryServiceV2(sid, batteryLevel, isBatteryLow, chargingState, accessory) {
-    const service = accessory.getService(Service.BatteryService);
+    const service = accessory.getService(Service.BatteryService)
     if (batteryLevel != undefined) {
-      service.getCharacteristic(Characteristic.BatteryLevel).updateValue(batteryLevel);
+      service.getCharacteristic(Characteristic.BatteryLevel).updateValue(batteryLevel)
     }
     if (isBatteryLow != undefined) {
-      service.getCharacteristic(Characteristic.StatusLowBattery).updateValue(isBatteryLow);
+      service.getCharacteristic(Characteristic.StatusLowBattery).updateValue(isBatteryLow)
     }
     if (chargingState != undefined) {
-      service.getCharacteristic(Characteristic.ChargingState).updateValue(chargingState);
+      service.getCharacteristic(Characteristic.ChargingState).updateValue(chargingState)
     }
   }
   /**
@@ -63,23 +63,23 @@ class Base {
    * @param {*accessories} accessories
    */
   registerAccessory(accessories) {
-    this.mijia.api.registerPlatformAccessories("homebridge-smarthome", "smarthome-mijia", accessories);
+    this.mijia.api.registerPlatformAccessories('homebridge-smarthome', 'smarthome-mijia', accessories)
   }
   /**
    * unregistry accessories to homekit
    * @param {*accessories} accessories
    */
   unregisterAccessory(accessories) {
-    this.mijia.api.unregisterPlatformAccessories("homebridge-smarthome", "smarthome-mijia", accessories);
+    this.mijia.api.unregisterPlatformAccessories('homebridge-smarthome', 'smarthome-mijia', accessories)
   }
   /**
    * parse msg receive from gateway
    * @param {*} msg
    * @param {*} rinfo
    */
-  parseMsg(msg, rinfo) {
-    this.mijia.log.warn("base device parseMsg -> %s", JSON.parse(msg));
+  parseMsg(msg, _rinfo) {
+    this.mijia.log.warn('base device parseMsg -> %s', JSON.parse(msg))
   }
 }
 
-module.exports = Base;
+module.exports = Base

@@ -1,30 +1,32 @@
-const Base = require("./base");
+const Base = require('./base')
 
-let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen;
+let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen
 class MotionAq2 extends Base {
   constructor(mijia) {
-    super(mijia);
-    PlatformAccessory = mijia.PlatformAccessory;
-    Accessory = mijia.Accessory;
-    Service = mijia.Service;
-    Characteristic = mijia.Characteristic;
-    UUIDGen = mijia.UUIDGen;
+    super(mijia)
+    PlatformAccessory = mijia.PlatformAccessory
+    Accessory = mijia.Accessory
+    Service = mijia.Service
+    Characteristic = mijia.Characteristic
+    UUIDGen = mijia.UUIDGen
   }
   /**
    * parse the gateway json msg
    * @param {*json} json
    * @param {*remoteinfo} rinfo
    */
-  parseMsg(json, rinfo) {
-    const { cmd, model, sid } = json;
-    const data = JSON.parse(json.data);
-    const { voltage, status, lux } = data; // lux->0~1200
-    this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} status->${status} lux->${lux}`);
+  parseMsg(json, _rinfo) {
+    const { cmd, model, sid } = json
+    const data = JSON.parse(json.data)
+    const { voltage, status, lux } = data // lux->0~1200
+
+    this.mijia.log.debug(`${model} ${cmd} voltage->${voltage} status->${status} lux->${lux}`)
+
     if (status != undefined) {
-      this.setMotionSensor(sid, voltage, status);
+      this.setMotionSensor(sid, voltage, status)
     }
     if (lux != undefined) {
-      this.setLightSensor(sid, lux);
+      this.setLightSensor(sid, lux)
     }
   }
   /**
@@ -34,39 +36,39 @@ class MotionAq2 extends Base {
    * @param {*device status} status
    */
   setMotionSensor(sid, voltage, status) {
-    const uuid = UUIDGen.generate(`Aqara-MotionSensor@${sid}`);
-    let accessory = this.mijia.accessories[uuid];
-    let service;
+    const uuid = UUIDGen.generate(`Aqara-MotionSensor@${sid}`)
+    let accessory = this.mijia.accessories[uuid]
+    let service
     if (!accessory) {
       // init a new homekit accessory
-      const name = sid.substring(sid.length - 4);
-      accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
+      const name = sid.substring(sid.length - 4)
+      accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR)
       accessory
         .getService(Service.AccessoryInformation)
-        .setCharacteristic(Characteristic.Manufacturer, "Aqara")
-        .setCharacteristic(Characteristic.Model, "Aqara MotionSensor")
-        .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on("identify", (paired, callback) => {
-        callback();
-      });
-      service = new Service.MotionSensor(name);
-      accessory.addService(service, name);
-      accessory.addService(new Service.BatteryService(name), name);
+        .setCharacteristic(Characteristic.Manufacturer, 'Aqara')
+        .setCharacteristic(Characteristic.Model, 'Aqara MotionSensor')
+        .setCharacteristic(Characteristic.SerialNumber, sid)
+      accessory.on('identify', (paired, callback) => {
+        callback()
+      })
+      service = new Service.MotionSensor(name)
+      accessory.addService(service, name)
+      accessory.addService(new Service.BatteryService(name), name)
     } else {
-      service = accessory.getService(Service.MotionSensor);
+      service = accessory.getService(Service.MotionSensor)
     }
-    accessory.reachable = true;
-    accessory.context.sid = sid;
-    accessory.context.model = "sensor_motion.aq2";
+    accessory.reachable = true
+    accessory.context.sid = sid
+    accessory.context.model = 'sensor_motion.aq2'
     if (status != undefined) {
-      service.getCharacteristic(Characteristic.MotionDetected).updateValue(status == "motion");
+      service.getCharacteristic(Characteristic.MotionDetected).updateValue(status == 'motion')
     }
-    this.setBatteryService(sid, voltage, accessory);
+    this.setBatteryService(sid, voltage, accessory)
     if (!this.mijia.accessories[uuid]) {
-      this.mijia.accessories[uuid] = accessory;
-      this.registerAccessory([accessory]);
+      this.mijia.accessories[uuid] = accessory
+      this.registerAccessory([accessory])
     }
-    return accessory;
+    return accessory
   }
 
   /**
@@ -75,34 +77,34 @@ class MotionAq2 extends Base {
    * @param {*device lux value} lux
    */
   setLightSensor(sid, lux) {
-    const uuid = UUIDGen.generate(`Aqara-LightSensor@${sid}`);
-    let accessory = this.mijia.accessories[uuid];
-    let service;
+    const uuid = UUIDGen.generate(`Aqara-LightSensor@${sid}`)
+    let accessory = this.mijia.accessories[uuid]
+    let service
     if (!accessory) {
       // init a new homekit accessory
-      const name = sid.substring(sid.length - 4);
-      accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR);
+      const name = sid.substring(sid.length - 4)
+      accessory = new PlatformAccessory(name, uuid, Accessory.Categories.SENSOR)
       accessory
         .getService(Service.AccessoryInformation)
-        .setCharacteristic(Characteristic.Manufacturer, "Aqara")
-        .setCharacteristic(Characteristic.Model, "Aqara LightSensor")
-        .setCharacteristic(Characteristic.SerialNumber, sid);
-      accessory.on("identify", (paired, callback) => {
-        callback();
-      });
-      service = new Service.LightSensor(name);
-      accessory.addService(service, name);
+        .setCharacteristic(Characteristic.Manufacturer, 'Aqara')
+        .setCharacteristic(Characteristic.Model, 'Aqara LightSensor')
+        .setCharacteristic(Characteristic.SerialNumber, sid)
+      accessory.on('identify', (paired, callback) => {
+        callback()
+      })
+      service = new Service.LightSensor(name)
+      accessory.addService(service, name)
     } else {
-      service = accessory.getService(Service.LightSensor);
+      service = accessory.getService(Service.LightSensor)
     }
-    accessory.reachable = true;
-    accessory.context.sid = sid;
-    accessory.context.model = "sensor_motion.aq2";
-    service.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(lux);
+    accessory.reachable = true
+    accessory.context.sid = sid
+    accessory.context.model = 'sensor_motion.aq2'
+    service.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(lux)
     if (!this.mijia.accessories[uuid]) {
-      this.mijia.accessories[uuid] = accessory;
-      this.registerAccessory([accessory]);
+      this.mijia.accessories[uuid] = accessory
+      this.registerAccessory([accessory])
     }
   }
 }
-module.exports = MotionAq2;
+module.exports = MotionAq2

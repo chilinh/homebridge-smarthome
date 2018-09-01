@@ -1,125 +1,106 @@
-let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen, CommunityTypes;
-let _homebridge;
+let PlatformAccessory, Accessory, Service, Characteristic, UUIDGen, CommunityTypes
+let _homebridge
 
-const miio = require("miio");
-const dgram = require("dgram");
-const util = require("util");
-const inherits = require("util").inherits;
-const crypto = require("crypto");
-const devices = require("./mijia/");
-const types = require("../util/types");
+const dgram = require('dgram')
+const util = require('util')
+const crypto = require('crypto')
+const devices = require('./mijia/')
+const types = require('../util/types')
 
-const iv = Buffer.from([
-  0x17,
-  0x99,
-  0x6d,
-  0x09,
-  0x3d,
-  0x28,
-  0xdd,
-  0xb3,
-  0xba,
-  0x69,
-  0x5a,
-  0x2e,
-  0x6f,
-  0x58,
-  0x56,
-  0x2e
-]);
-const multicastIp = "224.0.0.50";
-const multicastPort = 4321;
-const udpPort = 9898;
+const iv = Buffer.from([0x17, 0x99, 0x6d, 0x09, 0x3d, 0x28, 0xdd, 0xb3, 0xba, 0x69, 0x5a, 0x2e, 0x6f, 0x58, 0x56, 0x2e])
+const multicastIp = '224.0.0.50'
+const multicastPort = 4321
+const udpPort = 9898
 
 class Mijia {
   // config may be null
   // api may be null if launched from old homebridge version
   constructor(log, config, api) {
-    this.PlatformAccessory = PlatformAccessory;
-    this.Accessory = Accessory;
-    this.Service = Service;
-    this.Characteristic = Characteristic;
-    this.UUIDGen = UUIDGen;
-    this.CommunityTypes = CommunityTypes;
+    this.PlatformAccessory = PlatformAccessory
+    this.Accessory = Accessory
+    this.Service = Service
+    this.Characteristic = Characteristic
+    this.UUIDGen = UUIDGen
+    this.CommunityTypes = CommunityTypes
     // define
-    this.udpScoket = null;
-    this.log = log;
-    this.config = config;
+    this.udpScoket = null
+    this.log = log
+    this.config = config
     // init properties
-    this.gateways = {};
-    this.accessories = {};
-    this.sensor_names = {};
+    this.gateways = {}
+    this.accessories = {}
+    this.sensor_names = {}
     // device object
-    this.devices = {};
+    this.devices = {}
     // supported device parser
-    this._devices = {};
+    this._devices = {}
     if (api) {
       // Save the API object as plugin needs to register new accessory via this object.
-      this.api = api;
+      this.api = api
     } else {
-      this.log.error("Homebridge's version is too old, please upgrade!");
+      this.log.error("Homebridge's version is too old, please upgrade!")
     }
     // init upd server
     this.initUpdSocket()
       .then(() => {
         // init config
-        this.initConfig(config);
+        this.initConfig(config)
         // init device parsers
-        this.loadDevices();
+        this.loadDevices()
         // discover wifi device
-        this.discoverWifiDevice();
+        this.discoverWifiDevice()
       })
       .catch(err => {
-        this.log.error("mijia init upd socket error->%s", err);
-      });
+        this.log.error('mijia init upd socket error->%s', err)
+      })
     if (this.api) {
-      this.api.on("didFinishLaunching", this.didFinishLaunching.bind(this));
+      this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this))
     }
     if (_homebridge.mijia != undefined) {
-      _homebridge.mijia = this;
+      _homebridge.mijia = this
     }
-    this.log.debug("mijia constructor done");
+    this.log.debug('mijia constructor done')
   }
   /**
    * static method to export hap properties
    * @param {*homebridge} homebridge
    */
   static init(homebridge) {
-    return new Promise((resolve, reject) => {
-      homebridge.registerPlatform("homebridge-smarthome", "smarthome-mijia", Mijia, true);
-      resolve();
-    });
+    return new Promise((resolve, _) => {
+      homebridge.registerPlatform('homebridge-smarthome', 'smarthome-mijia', Mijia, true)
+      resolve()
+    })
   }
   /**
    * init properties from config.json
    */
   initConfig(config) {
-    const { mijia } = config;
-    const { sids, passwords, devices, sensor_names } = mijia;
+    const { mijia } = config
+    const { sids, passwords, devs, sensor_names } = mijia
     if (sids && passwords) {
       if (sids.length != passwords.length) {
-        throw new Error("sids length and passwords length must be equal");
+        throw new Error('sids length and passwords length must be equal')
       }
     }
     sids.map((sid, index) => {
-      this.gateways[sid] = { password: passwords[index], devices: {}, last_time: new Date() };
-    });
+      this.gateways[sid] = { password: passwords[index], devices: {}, last_time: new Date() }
+    })
     if (sensor_names) {
-      this.sensor_names = sensor_names;
+      this.sensor_names = sensor_names
     }
-    if (devices && devices.length > 0) {
+    if (devs && devs.length > 0) {
       // for wifi devices
-      devices.map(device => {
+      devs.map(device => {
         if (device.sid != undefined) {
-          this.devices[device.sid] = device;
+          this.devices[device.sid] = device
         } else if (device.name != undefined) {
-          this.devices[device.name] = device;
+          this.devices[device.name] = device
         } else {
-          this.log.warn("device do not have sid or name,will discard to register");
+          this.log.warn('device do not have sid or name,will discard to register')
         }
-      });
+      })
     }
-    this.log.debug("initConfig done");
+    this.log.debug('initConfig done')
   }
   /**
    * init udpScoket
@@ -127,42 +108,42 @@ class Mijia {
   initUpdSocket() {
     return new Promise((resolve, reject) => {
       this.udpScoket = dgram.createSocket({
-        type: "udp4",
-        reuseAddr: true
-      });
-      this.udpScoket.on("message", (msg, rinfo) => {
-        this.parseMsg(msg, rinfo);
-      });
-      this.udpScoket.on("error", err => {
-        this.log.error("error, msg -> %s, stack -> %s", err.message, err.stack);
-        reject(error);
-      });
-      this.udpScoket.on("listening", () => {
-        this.log.debug("mijia upd server is listening on port 9898");
-        this.udpScoket.addMembership(multicastIp);
-        this.log.debug("mijia add multicast to %s", multicastIp);
-        resolve();
-      });
-      this.udpScoket.bind(udpPort);
-    });
+        type: 'udp4',
+        reuseAddr: true,
+      })
+      this.udpScoket.on('message', (msg, rinfo) => {
+        this.parseMsg(msg, rinfo)
+      })
+      this.udpScoket.on('error', err => {
+        this.log.error('error, msg -> %s, stack -> %s', err.message, err.stack)
+        reject(err)
+      })
+      this.udpScoket.on('listening', () => {
+        this.log.debug('mijia upd server is listening on port 9898')
+        this.udpScoket.addMembership(multicastIp)
+        this.log.debug('mijia add multicast to %s', multicastIp)
+        resolve()
+      })
+      this.udpScoket.bind(udpPort)
+    })
   }
 
   /**
    * init parsers
    */
   loadDevices() {
-    this._devices = devices(this);
-    this.log.debug("loadDevices done");
+    this._devices = devices(this)
+    this.log.debug('loadDevices done')
   }
 
   didFinishLaunching() {
     // 1.discover who are mijia gateway
-    const cmd_whois = { cmd: "whois" };
-    this.sendMsg(cmd_whois, multicastIp, multicastPort);
+    const cmd_whois = { cmd: 'whois' }
+    this.sendMsg(cmd_whois, multicastIp, multicastPort)
     // 2.set interval to update mijia gateway and check the gateway alive
     setInterval(() => {
-      this.sendMsg(cmd_whois, multicastIp, multicastPort);
-    }, 1800000); // 1800s->30m
+      this.sendMsg(cmd_whois, multicastIp, multicastPort)
+    }, 1800000) // 1800s->30m
   }
 
   /**
@@ -170,13 +151,13 @@ class Mijia {
    * @param {*} accessory
    */
   configureAccessory(accessory) {
-    accessory.reachable = true;
-    accessory.on("identify", (paired, callback) => {
-      this.log.debug(`${accessory.displayName} -> Identify!!!`);
-      callback();
-    });
+    accessory.reachable = true
+    accessory.on('identify', (paired, callback) => {
+      this.log.debug(`${accessory.displayName} -> Identify!!!`)
+      callback()
+    })
     if (!this.accessories[accessory.UUID]) {
-      this.accessories[accessory.UUID] = accessory;
+      this.accessories[accessory.UUID] = accessory
     }
   }
 
@@ -185,17 +166,18 @@ class Mijia {
    */
   discoverWifiDevice() {
     for (const key in this.devices) {
-      const device = this.devices[key];
-      const { type, model } = device;
-      if (type == "wifi") {
+      const device = this.devices[key]
+      this.log.warn(`${device}`)
+      const { type, model } = device
+      if (type == 'wifi') {
         if (this._devices[model]) {
-          this._devices[model](this, device);
+          this._devices[model](this, device)
         } else {
-          this.log.warn("not support device->%s", util.inspect(device));
+          this.log.warn('not support device->%s', util.inspect(device))
         }
       }
     }
-    this.log.debug("discoverWifiDevice done");
+    this.log.debug('discoverWifiDevice done')
   }
   /**
    * discover zigbee deivce via gateway
@@ -203,11 +185,11 @@ class Mijia {
    * @param {*gateway port} port
    */
   discoverZigbeeDevice(ip, port) {
-    const cmd_get_id_list = { cmd: "get_id_list" };
-    this.sendMsg(cmd_get_id_list, ip, port);
+    const cmd_get_id_list = { cmd: 'get_id_list' }
+    this.sendMsg(cmd_get_id_list, ip, port)
     setInterval(() => {
-      this.sendMsg(cmd_get_id_list, ip, port);
-    }, 300000); // 300s->5m
+      this.sendMsg(cmd_get_id_list, ip, port)
+    }, 300000) // 300s->5m
   }
 
   /**
@@ -217,12 +199,12 @@ class Mijia {
    * @param {*port} port
    */
   sendMsg(msg, ip, port) {
-    this.log.debug("send msg->%s for %s:%s", util.inspect(msg), ip, port);
-    if (typeof msg === "string") {
-      this.udpScoket.send(msg, 0, msg.length, port, ip);
+    this.log.debug('send msg->%s for %s:%s', util.inspect(msg), ip, port)
+    if (typeof msg === 'string') {
+      this.udpScoket.send(msg, 0, msg.length, port, ip)
     } else {
-      const str = JSON.stringify(msg);
-      this.udpScoket.send(str, 0, str.length, port, ip);
+      const str = JSON.stringify(msg)
+      this.udpScoket.send(str, 0, str.length, port, ip)
     }
   }
 
@@ -232,23 +214,23 @@ class Mijia {
    * @param {*sid} sid
    */
   sendMsgToSid(msg, sid) {
-    this.log.debug("send msg->%s", util.inspect(msg));
-    let gateway = this.devices[sid];
+    this.log.debug('send msg->%s', util.inspect(msg))
+    let gateway = this.devices[sid]
     if (!gateway) {
-      gateway = this.gateways[sid];
+      gateway = this.gateways[sid]
     } else {
-      gateway = gateway.gateway;
+      gateway = gateway.gateway
     }
     if (!gateway) {
-      this.log.error(`can't find gateway sid->${sid}`);
-      return;
+      this.log.error(`can't find gateway sid->${sid}`)
+      return
     }
-    const { ip, port } = gateway;
-    if (typeof msg === "string") {
-      this.udpScoket.send(msg, 0, msg.length, port, ip);
+    const { ip, port } = gateway
+    if (typeof msg === 'string') {
+      this.udpScoket.send(msg, 0, msg.length, port, ip)
     } else {
-      const str = JSON.stringify(msg);
-      this.udpScoket.send(str, 0, str.length, port, ip);
+      const str = JSON.stringify(msg)
+      this.udpScoket.send(str, 0, str.length, port, ip)
     }
   }
   /**
@@ -257,80 +239,80 @@ class Mijia {
    * @param {*remoteaddr} rinfo
    */
   parseMsg(msg, rinfo) {
-    let json;
+    let json
     try {
-      json = JSON.parse(msg);
+      json = JSON.parse(msg)
     } catch (ex) {
-      this.log.error(`PARSE failed ${ex} - Mes ${new String(mes)}`);
-      return;
+      this.log.error(`PARSE failed ${ex} - Mes ${new String(msg)}`)
+      return
     }
-    const cmd = json.cmd;
+    const cmd = json.cmd
     switch (cmd) {
-      case "iam": {
-        const { ip, port, model } = json;
-        if (model == "gateway") {
-          this.log.debug(`Found gateway @${ip}:${port}`);
-          this.discoverZigbeeDevice(ip, port);
+      case 'iam': {
+        const { ip, port, model } = json
+        if (model == 'gateway') {
+          this.log.debug(`Found gateway @${ip}:${port}`)
+          this.discoverZigbeeDevice(ip, port)
         } else {
-          this.log.warn(`Receive [${cmd}] but model is ${model} @${ip}:${port}`);
+          this.log.warn(`Receive [${cmd}] but model is ${model} @${ip}:${port}`)
         }
-        break;
+        break
       }
-      case "get_id_list_ack": {
-        this.log.debug(`[${cmd}]: ${msg}`);
-        const { sid, token } = json;
-        const data = JSON.parse(json.data);
-        const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: "gateway", token };
-        gateway.ip = rinfo.address;
-        gateway.port = rinfo.port;
-        gateway.token = token;
-        gateway.last_time = new Date();
-        gateway.devices = [];
+      case 'get_id_list_ack': {
+        this.log.debug(`[${cmd}]: ${msg}`)
+        const { sid, token } = json
+        const data = JSON.parse(json.data)
+        const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: 'gateway', token }
+        gateway.ip = rinfo.address
+        gateway.port = rinfo.port
+        gateway.token = token
+        gateway.last_time = new Date()
+        gateway.devices = []
 
-        const cmd_read = { cmd: "read", sid };
-        this.sendMsg(cmd_read, gateway.ip, gateway.port);
-        data.map((did, index) => {
+        const cmd_read = { cmd: 'read', sid }
+        this.sendMsg(cmd_read, gateway.ip, gateway.port)
+        data.map(did => {
           if (!this.devices[did]) {
-            this.devices[did] = { sid: did, type: "zigbee" };
+            this.devices[did] = { sid: did, type: 'zigbee' }
           }
-          this.devices[did].gateway = gateway;
-          this.devices[did].last_time = new Date();
-          gateway.devices[did] = this.devices[did];
-          cmd_read.sid = did;
-          this.sendMsg(cmd_read, gateway.ip, gateway.port);
-        });
-        break;
+          this.devices[did].gateway = gateway
+          this.devices[did].last_time = new Date()
+          gateway.devices[did] = this.devices[did]
+          cmd_read.sid = did
+          this.sendMsg(cmd_read, gateway.ip, gateway.port)
+        })
+        break
       }
-      case "heartbeat": {
-        const { sid, model, short_id, token } = json;
-        const data = JSON.parse(json.data);
-        if (model == "gateway") {
-          const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: "gateway" };
-          gateway.token = token;
-          gateway.ip = data.ip;
-          gateway.last_time = new Date();
-          this.gateways[sid] = gateway;
+      case 'heartbeat': {
+        const { sid, model, token } = json
+        const data = JSON.parse(json.data)
+        if (model == 'gateway') {
+          const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: 'gateway' }
+          gateway.token = token
+          gateway.ip = data.ip
+          gateway.last_time = new Date()
+          this.gateways[sid] = gateway
         } else {
-          this.log.debug(`[${cmd}]: ${msg}`);
+          this.log.debug(`[${cmd}]: ${msg}`)
           // let device = this.devices[sid] ? this.devices[sid] : { sid, short_id, type: "zigbee" };
           // device = Object.assign(device, data);
           // device.last_time = new Date();
           // this.devices[sid] = device;
         }
-        break;
+        break
       }
-      case "write_ack": {
-        this.log.debug(`[${cmd}]: ${msg}`);
-        break;
+      case 'write_ack': {
+        this.log.debug(`[${cmd}]: ${msg}`)
+        break
       }
-      case "read_ack":
-      case "report": {
-        this.log.debug(`[${cmd}]: ${msg}`);
-        this.parseDevice(json, rinfo);
-        break;
+      case 'read_ack':
+      case 'report': {
+        this.log.debug(`[${cmd}]: ${msg}`)
+        this.parseDevice(json, rinfo)
+        break
       }
       default: {
-        this.log.warn(`UNKNOWN [${cmd}] - gateway @${rinfo.address}:${rinfo.port} - ${msg}`);
+        this.log.warn(`UNKNOWN [${cmd}] - gateway @${rinfo.address}:${rinfo.port} - ${msg}`)
       }
     }
   }
@@ -341,29 +323,29 @@ class Mijia {
    */
   parseDevice(json, rinfo) {
     // when the device status changed , will recive data
-    const { sid, model, short_id, token } = json;
-    const data = JSON.parse(json.data);
-    if (model == "gateway") {
-      const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: "gateway", short_id, token };
+    const { sid, model, short_id, token } = json
+    const data = JSON.parse(json.data)
+    if (model == 'gateway') {
+      const gateway = this.gateways[sid] ? this.gateways[sid] : { sid, model: 'gateway', short_id, token }
       if (short_id) {
-        gateway.short_id = short_id;
+        gateway.short_id = short_id
       }
       if (token) {
-        gateway.token = token;
+        gateway.token = token
       }
-      gateway.last_time = new Date();
-      this.gateways[sid] = gateway;
+      gateway.last_time = new Date()
+      this.gateways[sid] = gateway
     } else {
-      let device = this.devices[sid] ? this.devices[sid] : { sid, short_id, model };
-      device = Object.assign(device, data);
-      device.last_time = new Date();
-      this.devices[sid] = device;
+      let device = this.devices[sid] ? this.devices[sid] : { sid, short_id, model }
+      device = Object.assign(device, data)
+      device.last_time = new Date()
+      this.devices[sid] = device
     }
-    const device = this._devices[model];
+    const device = this._devices[model]
     if (device != undefined) {
-      device.parseMsg(json, rinfo);
+      device.parseMsg(json, rinfo)
     } else {
-      this.log.warn("receive report cmd, but no support device found->%s", model);
+      this.log.warn('receive report cmd, but no support device found->%s', model)
     }
   }
   /**
@@ -371,33 +353,33 @@ class Mijia {
    * @param {*gateway id} sid
    */
   generateKey(sid) {
-    let gateway = this.devices[sid];
+    let gateway = this.devices[sid]
     if (!gateway) {
-      gateway = this.gateways[sid];
+      gateway = this.gateways[sid]
     } else {
-      gateway = gateway.gateway;
+      gateway = gateway.gateway
     }
     if (!gateway) {
-      this.log.error(`can't find gateway sid->${sid}`);
-      return;
+      this.log.error(`can't find gateway sid->${sid}`)
+      return
     }
-    const { password, token } = gateway;
-    const cipher = crypto.createCipheriv("aes-128-cbc", password, iv);
-    const key = cipher.update(token, "ascii", "hex");
-    cipher.final("hex");
-    return key;
+    const { password, token } = gateway
+    const cipher = crypto.createCipheriv('aes-128-cbc', password, iv)
+    const key = cipher.update(token, 'ascii', 'hex')
+    cipher.final('hex')
+    return key
   }
 }
 // module exports define
 module.exports = homebridge => {
   // export some properties from homebridge
-  PlatformAccessory = homebridge.platformAccessory;
-  Accessory = homebridge.hap.Accessory;
-  Service = homebridge.hap.Service;
-  Characteristic = homebridge.hap.Characteristic;
-  UUIDGen = homebridge.hap.uuid;
-  CommunityTypes = types(homebridge);
-  _homebridge = homebridge;
+  PlatformAccessory = homebridge.platformAccessory
+  Accessory = homebridge.hap.Accessory
+  Service = homebridge.hap.Service
+  Characteristic = homebridge.hap.Characteristic
+  UUIDGen = homebridge.hap.uuid
+  CommunityTypes = types(homebridge)
+  _homebridge = homebridge
   // init mikit
-  return Mijia.init(homebridge);
-};
+  return Mijia.init(homebridge)
+}
