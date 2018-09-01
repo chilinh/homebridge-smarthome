@@ -47,23 +47,22 @@ class PowerPlug extends Base {
     let status = false;
     if (device != undefined) {
       if (model == "chuangmi.plug.v1") {
-        if (channel == "main") {
-          status = device.on;
-        } else if (channel == "usb") {
-          status = device.usb_on;
-        }
+        // if (channel == "main") {
+        //   status = device.on;
+        // } else if (channel == "usb") {
+        //   status = device.usb_on;
+        // }
       } else {
-        status = device.power(device.powerChannels[channel]);
+        device.power()
+          .then(power => {
+            this.mijia.log.debug(`PowerPlug ${sid} changed: ${power}`);
+            service.getCharacteristic(Characteristic.On).updateValue(power);
+          })
       }
 
-      device.on("propertyChanged", e => {
-        this.mijia.log.debug(`PowerPlug ${sid} - ${device.powerChannels[channel]} changed: ${JSON.stringify(e)}`);
-        if (e.property == `powerChannel${channel}`) {
-          service.getCharacteristic(Characteristic.On).updateValue(e.value);
-        }
-      });
-      device.monitor(5000).catch(e => {
-        this.mijia.log.error(`PowerPlug ${sid} monitor ${e}`);
+      device.on("powerChanged", e => {
+        this.mijia.log.debug(`PowerPlug ${sid} changed: ${e}`);
+        service.getCharacteristic(Characteristic.On).updateValue(e);
       });
     }
 
@@ -72,13 +71,18 @@ class PowerPlug extends Base {
     if (!setters || setters.length == 0) {
       service.getCharacteristic(Characteristic.On).on("set", (value, callback) => {
         const device = this.devices[sid];
-        if (device != undefined && value != undefined) {
-          device.setPower(device.powerChannels[channel], !!value).catch(e => {
-            this.mijia.log.error(`SET PLUG ERROR ${e}`);
-          });
+        if (device != undefined) {
+          if (value) {
+            device.turnOn()
+              .then(e => callback())
+              .catch(e => this.mijia.log.warb(`PowerPlug ${sid} error ${e}`))
+          } else {
+            device.turnOff()
+              .then(e => callback())
+              .catch(e => this.mijia.log.warb(`PowerPlug ${sid} error ${e}`))
+          }
         }
-        callback();
-      }).value = status;
+      })
     }
 
     if (!this.mijia.accessories[uuid]) {
@@ -90,9 +94,6 @@ class PowerPlug extends Base {
   discover() {
     const browser = miio.browse(); // require a new browse
     browser.on("available", reg => {
-      if (reg.type != this.model) {
-        return;
-      }
       if (!reg.token) {
         // power plug support Auto-token
         return;
@@ -101,7 +102,7 @@ class PowerPlug extends Base {
       miio
         .device(reg)
         .then(device => {
-          if (device.type != this.model) {
+          if (!device.matches(`type:${this.model}`)) {
             return;
           }
           this.devices[reg.id] = device;
