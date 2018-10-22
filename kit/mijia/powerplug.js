@@ -74,12 +74,12 @@ class PowerPlug extends Base {
             dev
               .turnOn()
               .then(_ => callback())
-              .catch(e => this.mijia.log.warb(`PowerPlug ${sid} error ${e}`))
+              .catch(e => this.mijia.log.warn(`PowerPlug ${sid} error ${e}`))
           } else {
             dev
               .turnOff()
               .then(_ => callback())
-              .catch(e => this.mijia.log.warb(`PowerPlug ${sid} error ${e}`))
+              .catch(e => this.mijia.log.warn(`PowerPlug ${sid} error ${e}`))
           }
         }
       })
